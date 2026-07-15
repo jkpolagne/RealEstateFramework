@@ -93,3 +93,47 @@ export interface PropertyFilters {
   houseModel?: string;
   bedrooms?: number | 'Any';
 }
+
+export interface AddDeveloperInput {
+  name: string;
+  totalCutPercent: number;
+  status: 'active' | 'inactive';
+  directSale: { brokerPercent: number; salesManagerPercent: number };
+  referredSale: {
+    brokerPercent: number;
+    salesManagerPercent: number;
+    salesPersonPercent: number;
+  };
+}
+
+export interface AddPropertyInput {
+  name: string;
+  developerId: string;
+  type: PropertyType;
+  price: number;
+  status: PropertyStatus;
+  address: string;
+  lat: number;
+  lng: number;
+  lotArea: number;
+  floorArea: number;
+  bedrooms: number;
+  bathrooms: number;
+  turnoverStatus: TurnoverStatus;
+  houseModel: string;
+  description: string;
+  features: string[];
+  amenities: string[];
+  /** Data URLs from client-side file reads — first becomes the hero image. */
+  images: string[];
+}
+
+export interface AddLoanQuotationInput {
+  propertyId: string;
+  interestRate: number;
+  downPaymentPercent: number;
+  downPaymentAmount: number;
+  termMonths: number;
+  monthlyAmortization: number;
+  paymentBreakdownDescription: string;
+}

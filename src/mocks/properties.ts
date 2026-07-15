@@ -15,6 +15,8 @@ const lot22 = images('lot-22-sunrise', 'Lot 22, Sunrise Heights');
 const unit7 = images('unit-7-palmgrove', 'Unit 7, Palm Grove Residences');
 const unit2 = images('unit-2-emerald', 'Unit 2, Emerald Court');
 const unit10 = images('unit-10-hilltop', 'Unit 10, Hilltop Estates');
+const rowhouse9 = images('rowhouse-9-meadowbrook', 'Rowhouse 9, Meadowbrook');
+const unit15 = images('unit-15-coralbay', 'Unit 15, Coral Bay Residences');
 
 export const properties: Property[] = [
   {
@@ -148,5 +150,49 @@ export const properties: Property[] = [
     amenities: ['Clubhouse', 'Swimming pool', 'Scenic viewing deck', '24/7 security'],
     heroImage: unit10.hero,
     gallery: unit10.gallery,
+  },
+  {
+    id: 'prop-rowhouse9-meadowbrook',
+    name: 'Rowhouse 9, Meadowbrook',
+    developerId: 'dev-golden-horizon',
+    developerName: 'Golden Horizon Developers',
+    type: 'House',
+    price: 2_750_000,
+    status: 'sold',
+    location: { address: 'Meadowbrook, Naga City, Camarines Sur', lat: 13.6089, lng: 123.2135 },
+    lotArea: 60,
+    floorArea: 70,
+    bedrooms: 2,
+    bathrooms: 1,
+    turnoverStatus: 'Ready for turnover',
+    houseModel: 'Meadowbrook Rowhouse',
+    description:
+      'A compact 2-bedroom rowhouse unit in the Meadowbrook community, already turned over and sold — shown here to demonstrate the full property lifecycle.',
+    features: ['Rowhouse unit', 'Fully painted interior', 'Ready for turnover'],
+    amenities: ['Perimeter fence', 'Streetlights'],
+    heroImage: rowhouse9.hero,
+    gallery: rowhouse9.gallery,
+  },
+  {
+    id: 'prop-unit15-coralbay',
+    name: 'Unit 15, Coral Bay Residences',
+    developerId: 'dev-bicol-homes',
+    developerName: 'Bicol Homes Corporation',
+    type: 'House and Lot',
+    price: 4_100_000,
+    status: 'available',
+    location: { address: 'Coral Bay Residences, Pili, Camarines Sur', lat: 13.5638, lng: 123.2903 },
+    lotArea: 130,
+    floorArea: 120,
+    bedrooms: 3,
+    bathrooms: 2,
+    turnoverStatus: 'Under construction',
+    houseModel: 'Coral Bay Grand',
+    description:
+      'A spacious 3-bedroom family home under construction in the Coral Bay Residences development, close to the Pili commercial corridor.',
+    features: ['2-storey layout', 'Balcony', 'Provision for garage'],
+    amenities: ['Clubhouse', 'Swimming pool', '24/7 security'],
+    heroImage: unit15.hero,
+    gallery: unit15.gallery,
   },
 ];

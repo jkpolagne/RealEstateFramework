@@ -17,4 +17,12 @@ export const developers: Developer[] = [
     directSale: { brokerPercent: 2, salesManagerPercent: 4 },
     referredSale: { brokerPercent: 2, salesManagerPercent: 1.5, salesPersonPercent: 2.5 },
   },
+  {
+    id: 'dev-camsur-land',
+    name: 'Camarines Sur Land Ventures',
+    totalCutPercent: 5,
+    status: 'inactive',
+    directSale: { brokerPercent: 2, salesManagerPercent: 3 },
+    referredSale: { brokerPercent: 2, salesManagerPercent: 1, salesPersonPercent: 2 },
+  },
 ];

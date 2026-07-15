@@ -159,8 +159,13 @@ export function PropertyDetailsPage() {
               <div><dt>Turnover status</dt><dd>{property.turnoverStatus}</dd></div>
               {property.bedrooms > 0 && <div><dt>Bedrooms</dt><dd>{property.bedrooms}</dd></div>}
             </dl>
-            <button type="button" className="btn btn-primary btn-block" onClick={() => setScheduleOpen(true)}>
-              Schedule Visit
+            <button
+              type="button"
+              className="btn btn-primary btn-block"
+              onClick={() => setScheduleOpen(true)}
+              disabled={property.status === 'sold'}
+            >
+              {property.status === 'sold' ? 'Sold — Not Available' : 'Schedule Visit'}
             </button>
             <button
               type="button"

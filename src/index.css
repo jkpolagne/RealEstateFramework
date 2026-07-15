@@ -905,3 +905,269 @@ textarea {
     grid-template-columns: 1fr;
   }
 }
+
+/* Company Admin shell */
+.admin-layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+.admin-sidebar {
+  flex: 0 0 240px;
+  background: var(--navy);
+  color: var(--white);
+  display: flex;
+  flex-direction: column;
+  padding: 1.2rem 0;
+}
+
+.admin-sidebar-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0 1.2rem 1.2rem;
+  border-bottom: 1px solid var(--navy-700);
+  margin-bottom: 0.6rem;
+}
+
+.admin-sidebar-brand strong {
+  display: block;
+  font-size: 0.95rem;
+  color: var(--white);
+}
+
+.admin-sidebar-brand-sub {
+  font-size: 0.72rem;
+  color: #c9cedb;
+}
+
+.admin-sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  padding: 0 0.6rem;
+}
+
+.admin-sidebar-link {
+  display: block;
+  padding: 0.65rem 0.75rem;
+  border-radius: 8px;
+  color: #c9cedb;
+  font-size: 0.88rem;
+  font-weight: 500;
+  text-decoration: none;
+  border-left: 3px solid transparent;
+}
+
+.admin-sidebar-link:hover {
+  background: var(--navy-700);
+  color: var(--white);
+}
+
+.admin-sidebar-link-active {
+  background: var(--navy-700);
+  color: var(--white);
+  border-left-color: var(--gold);
+  font-weight: 700;
+}
+
+.admin-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 100vh;
+}
+
+.admin-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.1rem 1.75rem;
+  background: var(--white);
+  border-bottom: 1px solid var(--border);
+}
+
+.admin-topbar h2 {
+  font-size: 1.1rem;
+}
+
+.admin-content {
+  flex: 1;
+  padding: 1.5rem 1.75rem 2.5rem;
+}
+
+.admin-page-header {
+  margin-bottom: 1.25rem;
+}
+
+.admin-page-header h1 {
+  font-size: 1.4rem;
+  margin-bottom: 0.25rem;
+}
+
+.admin-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  margin-bottom: 1.1rem;
+  flex-wrap: wrap;
+}
+
+.admin-search {
+  flex: 1;
+  min-width: 200px;
+  padding: 0.55rem 0.7rem;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  font-size: 0.9rem;
+}
+
+.admin-toolbar select {
+  padding: 0.55rem 0.7rem;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--white);
+  font-size: 0.9rem;
+}
+
+/* Admin tables */
+.admin-table-wrap {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow-x: auto;
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.admin-table th,
+.admin-table td {
+  padding: 0.75rem 1rem;
+  text-align: left;
+  font-size: 0.87rem;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+
+.admin-table th {
+  background: var(--bg);
+  color: var(--navy);
+  font-weight: 700;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.admin-table tr:last-child td {
+  border-bottom: none;
+}
+
+.admin-table-name {
+  font-weight: 600;
+  color: var(--navy);
+}
+
+.admin-table-thumb {
+  width: 56px;
+  height: 40px;
+  object-fit: cover;
+  border-radius: 6px;
+  display: block;
+}
+
+.admin-table-empty {
+  text-align: center;
+  padding: 2rem 1rem;
+  white-space: normal;
+}
+
+/* Admin forms */
+.admin-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.field-row-3 {
+  grid-template-columns: 1fr 1fr 1fr;
+}
+
+.field-row-4 {
+  grid-template-columns: repeat(4, 1fr);
+}
+
+.admin-fieldset {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.admin-fieldset legend {
+  padding: 0 0.4rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--navy);
+}
+
+.admin-property-modal {
+  max-width: 640px;
+}
+
+.image-upload-preview {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin-top: 0.5rem;
+}
+
+.image-upload-thumb {
+  position: relative;
+  width: 84px;
+  height: 64px;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+
+.image-upload-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.image-upload-remove {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(19, 33, 53, 0.7);
+  color: var(--white);
+  font-size: 0.65rem;
+  line-height: 1;
+  padding: 0;
+}
+
+@media (max-width: 900px) {
+  .admin-layout {
+    flex-direction: column;
+  }
+  .admin-sidebar {
+    flex: none;
+    width: 100%;
+  }
+  .admin-sidebar-nav {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+}

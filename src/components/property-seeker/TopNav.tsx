@@ -24,6 +24,9 @@ export function TopNav({ onOpenLoanCalculator }: TopNavProps) {
               Compare ({comparedIds.length}/2)
             </Link>
           )}
+          <Link to="/company-admin" className="btn btn-outline-invert btn-sm">
+            Staff Portal
+          </Link>
           <button type="button" className="btn btn-primary" onClick={onOpenLoanCalculator}>
             Loan Calculator
           </button>
