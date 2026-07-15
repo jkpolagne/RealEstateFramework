@@ -4,7 +4,8 @@ import { getSales, buildSalesReport, propertyName } from '../../services/saleSer
 import { getAllDevelopers } from '../../services/developerService';
 import { getConsultantAccounts } from '../../services/consultantAccountService';
 import { getAllPropertiesForAdmin } from '../../services/propertyService';
-import { StatTile } from '../../components/company-admin/StatTile';
+import { StatTile } from '../../components/shared/StatTile';
+import { RankedList } from '../../components/shared/RankedList';
 import { formatPHP } from '../../lib/format';
 import { downloadCsv } from '../../lib/csv';
 
@@ -157,19 +158,13 @@ export function SalesReportPage() {
 
       <div className="card admin-dashboard-panel admin-top-consultants">
         <h3>Top-performing consultants</h3>
-        {report.topConsultants.length === 0 ? (
-          <p className="text-muted">No sales in this date range.</p>
-        ) : (
-          <ol className="admin-ranked-list">
-            {report.topConsultants.map((row, i) => (
-              <li key={row.consultantId}>
-                <span className="admin-ranked-position">{i + 1}</span>
-                <span className="admin-ranked-name">{row.consultantName}</span>
-                <span className="price">{formatPHP(row.totalSales)}</span>
-              </li>
-            ))}
-          </ol>
-        )}
+        <RankedList
+          rows={report.topConsultants.map((row) => ({
+            id: row.consultantId,
+            name: row.consultantName,
+            value: formatPHP(row.totalSales),
+          }))}
+        />
       </div>
     </div>
   );

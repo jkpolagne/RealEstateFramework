@@ -5,7 +5,7 @@ import { getAllPropertiesForAdmin } from '../../services/propertyService';
 import { getAllDevelopers } from '../../services/developerService';
 import { getConsultantAccounts } from '../../services/consultantAccountService';
 import { getVisitRequests } from '../../services/visitService';
-import { StatTile } from '../../components/company-admin/StatTile';
+import { StatTile } from '../../components/shared/StatTile';
 
 export function DashboardPage() {
   const [properties, setProperties] = useState<Property[]>([]);

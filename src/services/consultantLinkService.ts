@@ -16,3 +16,8 @@ export async function getConsultantLinks(): Promise<ConsultantLink[]> {
   await delay();
   return consultantLinks;
 }
+
+export async function getConsultantLinkByConsultantId(consultantId: string): Promise<ConsultantLink | undefined> {
+  await delay(150);
+  return consultantLinks.find((link) => link.consultantId === consultantId);
+}

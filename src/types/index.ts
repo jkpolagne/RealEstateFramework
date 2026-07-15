@@ -234,3 +234,99 @@ export interface Notification {
   read: boolean;
   createdAt: string;
 }
+
+export type PaymentMethod = 'Cash' | 'In-House' | 'Bank Financing';
+export type EmploymentStatus = 'OFW' | 'Locally Employed' | 'Self-Employed';
+export type ChecklistPhase = 'Basic' | 'Complete';
+
+export interface ChecklistItem {
+  id: string;
+  label: string;
+  phase: ChecklistPhase;
+  checked: boolean;
+  verifiedBy: string | null;
+  verifiedDate: string | null;
+}
+
+export interface Client {
+  id: string;
+  fullName: string;
+  email: string;
+  phone: string;
+  employmentStatus: EmploymentStatus | null;
+  propertyId: string;
+  developerId: string;
+  salePrice: number;
+  saleType: SaleType;
+  paymentMethod: PaymentMethod;
+  /** 1 for Cash, 4 for In-House / Bank Financing. */
+  totalTranches: number;
+  brokerId: string;
+  salesManagerId: string;
+  salesPersonId: string | null;
+  addedDate: string;
+  paymentProgressPercent: number;
+  requirementsChecklist: ChecklistItem[];
+  lastContactedDate: string | null;
+  notes: string;
+}
+
+export interface PaymentRecord {
+  id: string;
+  clientId: string;
+  amount: number;
+  paymentDate: string;
+  method: string;
+  referenceNumber: string;
+  uploadedById: string;
+  createdAt: string;
+}
+
+export interface ConsultantNotification {
+  id: string;
+  /** A consultantId, or 'all' for a broker-wide announcement. */
+  recipientId: string;
+  title: string;
+  message: string;
+  read: boolean;
+  createdAt: string;
+}
+
+export type VoucherStatus = 'Pending Signature' | 'Signed' | 'Disputed' | 'Released';
+export type VoucherRole = 'Broker' | 'Sales Manager' | 'Sales Person';
+
+export interface CommissionVoucher {
+  id: string;
+  clientId: string;
+  developerId: string;
+  developerName: string;
+  role: VoucherRole;
+  consultantId: string;
+  consultantName: string;
+  releaseNumber: number;
+  totalReleases: number;
+  ratePercent: number;
+  dateDisbursed: string | null;
+  paidTo: string;
+  buyerName: string;
+  rsDate: string;
+  ntcp: number;
+  blockLot: string;
+  checkNumber: string;
+  bank: string;
+  grossCommission: number;
+  lessEwt: number;
+  grossCommissionReleasedFrom: string;
+  lessAdcom: number;
+  totalCommissionDue: number;
+  lessMiscTax: number;
+  otherDeductions: number;
+  netCommissionReceivable: number;
+  approvedByBroker: string | null;
+  receivedByConsultant: string | null;
+  status: VoucherStatus;
+  signedDate: string | null;
+  releasedDate: string | null;
+  disputeReason: string | null;
+  createdAt: string;
+}

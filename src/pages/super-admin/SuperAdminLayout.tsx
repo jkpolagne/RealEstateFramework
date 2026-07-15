@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link, Outlet, useLocation } from 'react-router-dom';
 import { Sidebar } from '../../components/super-admin/Sidebar';
 import { getCompanies } from '../../services/companyService';
+import { PortalSwitcher } from '../../components/shared/PortalSwitcher';
 
 export function SuperAdminLayout() {
   const [companyCount, setCompanyCount] = useState<number | null>(null);
@@ -30,9 +31,12 @@ export function SuperAdminLayout() {
                 : `${companyCount} registered ${companyCount === 1 ? 'company' : 'companies'} · ${activeCount} active`}
             </p>
           </div>
-          <Link to="/" className="btn btn-outline btn-sm">
-            View Public Site ↗
-          </Link>
+          <div className="admin-topbar-actions">
+            <PortalSwitcher current="super-admin" />
+            <Link to="/" className="btn btn-outline btn-sm">
+              View Public Site ↗
+            </Link>
+          </div>
         </header>
         <main className="admin-content scroll-y">
           <Outlet />
