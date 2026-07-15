@@ -3,12 +3,14 @@ import type { CommissionVoucher } from '../../types';
 import { getCommissionVouchers, releaseVoucher } from '../../services/commissionVoucherService';
 import { useConsultantSession } from '../../context/ConsultantSessionContext';
 import { formatPHP } from '../../lib/format';
+import { VoucherDetailsModal } from '../../components/shared/VoucherDetailsModal';
 
 export function ReleaseCommissionPage() {
   const { displayName } = useConsultantSession();
   const [vouchers, setVouchers] = useState<CommissionVoucher[]>([]);
   const [loading, setLoading] = useState(true);
   const [actingId, setActingId] = useState<string | null>(null);
+  const [viewingVoucher, setViewingVoucher] = useState<CommissionVoucher | null>(null);
 
   function refresh() {
     setLoading(true);
@@ -64,14 +66,19 @@ export function ReleaseCommissionPage() {
                   <td>{formatPHP(voucher.netCommissionReceivable)}</td>
                   <td>{voucher.signedDate}</td>
                   <td>
-                    <button
-                      type="button"
-                      className="btn btn-primary btn-sm"
-                      disabled={actingId === voucher.id}
-                      onClick={() => handleRelease(voucher.id)}
-                    >
-                      {actingId === voucher.id ? 'Releasing...' : 'Release'}
-                    </button>
+                    <div className="admin-row-actions">
+                      <button type="button" className="btn btn-outline btn-sm" onClick={() => setViewingVoucher(voucher)}>
+                        View Details
+                      </button>
+                      <button
+                        type="button"
+                        className="btn btn-primary btn-sm"
+                        disabled={actingId === voucher.id}
+                        onClick={() => handleRelease(voucher.id)}
+                      >
+                        {actingId === voucher.id ? 'Releasing...' : 'Release'}
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -79,6 +86,8 @@ export function ReleaseCommissionPage() {
           </table>
         </div>
       )}
+
+      {viewingVoucher && <VoucherDetailsModal voucher={viewingVoucher} onClose={() => setViewingVoucher(null)} />}
     </div>
   );
 }

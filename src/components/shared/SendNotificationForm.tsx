@@ -5,9 +5,11 @@ interface SendNotificationFormProps {
   onSend: (title: string, message: string) => Promise<void>;
   /** True while the recipient scope is still being resolved — blocks submission so a message can't silently go to nobody. */
   resolvingRecipients?: boolean;
+  /** Optional control (e.g. a "Send to" dropdown) rendered above the Title field, for roles that can target more than one audience. */
+  scopeControl?: React.ReactNode;
 }
 
-export function SendNotificationForm({ recipientLabel, onSend, resolvingRecipients }: SendNotificationFormProps) {
+export function SendNotificationForm({ recipientLabel, onSend, resolvingRecipients, scopeControl }: SendNotificationFormProps) {
   const [title, setTitle] = useState('');
   const [message, setMessage] = useState('');
   const [sending, setSending] = useState(false);
@@ -31,6 +33,7 @@ export function SendNotificationForm({ recipientLabel, onSend, resolvingRecipien
       </div>
 
       <form className="admin-form card admin-form-card" onSubmit={handleSubmit}>
+        {scopeControl}
         <div className="field">
           <label htmlFor="notif-title">Title</label>
           <input id="notif-title" type="text" required value={title} onChange={(e) => setTitle(e.target.value)} />

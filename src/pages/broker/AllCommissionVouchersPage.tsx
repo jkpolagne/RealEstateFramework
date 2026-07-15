@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import type { CommissionVoucher, VoucherStatus } from '../../types';
 import { getCommissionVouchers } from '../../services/commissionVoucherService';
 import { formatPHP } from '../../lib/format';
+import { VoucherDetailsModal } from '../../components/shared/VoucherDetailsModal';
 
 type StatusFilter = 'all' | VoucherStatus;
 
@@ -17,6 +18,7 @@ export function AllCommissionVouchersPage() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
+  const [viewingVoucher, setViewingVoucher] = useState<CommissionVoucher | null>(null);
 
   useEffect(() => {
     getCommissionVouchers().then((result) => {
@@ -74,6 +76,7 @@ export function AllCommissionVouchersPage() {
                 <th>Release</th>
                 <th>Net Receivable</th>
                 <th>Status</th>
+                <th></th>
               </tr>
             </thead>
             <tbody>
@@ -90,12 +93,19 @@ export function AllCommissionVouchersPage() {
                   <td>
                     <span className={`badge ${statusBadgeClass(voucher.status)}`}>{voucher.status}</span>
                   </td>
+                  <td>
+                    <button type="button" className="btn btn-outline btn-sm" onClick={() => setViewingVoucher(voucher)}>
+                      View Details
+                    </button>
+                  </td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
       )}
+
+      {viewingVoucher && <VoucherDetailsModal voucher={viewingVoucher} onClose={() => setViewingVoucher(null)} />}
     </div>
   );
 }

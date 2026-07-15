@@ -1143,6 +1143,84 @@ textarea {
   white-space: normal;
 }
 
+/* Expandable admin-table rows (drill-down) */
+.admin-table-row-clickable {
+  cursor: pointer;
+}
+
+.admin-table-row-clickable:hover td {
+  background: var(--bg);
+}
+
+.admin-table-expand-toggle {
+  width: 28px;
+}
+
+.admin-expand-chevron {
+  display: inline-block;
+  color: var(--text-muted);
+  transition: transform 0.15s ease;
+}
+
+.admin-expand-chevron-open {
+  transform: rotate(90deg);
+  color: var(--gold-dark, var(--gold));
+}
+
+.admin-table-detail-row td {
+  background: var(--bg);
+  white-space: normal;
+  padding: 1.1rem 1.3rem;
+}
+
+.team-drilldown {
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+}
+
+.team-drilldown-title {
+  font-size: 0.82rem;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  color: var(--text-muted);
+  margin-bottom: 0.6rem;
+}
+
+.team-drilldown-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.team-drilldown-list li {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.55rem 0.9rem;
+}
+
+.team-drilldown-list li > span:first-child {
+  flex: 1;
+}
+
+.admin-table-nested {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.admin-table-nested th,
+.admin-table-nested td {
+  white-space: normal;
+}
+
 /* Admin forms */
 .admin-form {
   display: flex;
@@ -1530,6 +1608,83 @@ textarea {
   max-width: 480px;
 }
 
+/* Top Agents leaderboard (full-width dedicated page) */
+.agent-leaderboard {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+  gap: 0.9rem;
+}
+
+.agent-leaderboard-card {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  padding: 1.1rem 1.3rem;
+  border-left: 4px solid var(--border);
+}
+
+.agent-rank-gold {
+  border-left-color: var(--gold);
+}
+
+.agent-rank-silver {
+  border-left-color: #9aa5b1;
+}
+
+.agent-rank-bronze {
+  border-left-color: #b07a4d;
+}
+
+.agent-leaderboard-rank {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--bg);
+  color: var(--navy);
+  font-size: 0.8rem;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.agent-leaderboard-avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: var(--navy);
+  color: var(--white);
+  font-size: 0.85rem;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.agent-leaderboard-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.agent-leaderboard-name {
+  font-weight: 700;
+  color: var(--navy);
+  font-size: 0.95rem;
+}
+
+.agent-leaderboard-role {
+  font-size: 0.8rem;
+}
+
+.agent-leaderboard-value {
+  flex-shrink: 0;
+}
+
 .admin-ranked-list {
   list-style: none;
   margin: 0;
@@ -1750,6 +1905,80 @@ textarea {
 
 .admin-voucher-form {
   max-width: 640px;
+}
+
+/* Commission voucher "View Details" receipt */
+.voucher-receipt-modal {
+  max-width: 520px;
+}
+
+.voucher-receipt {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+
+.voucher-receipt-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px dashed var(--border);
+}
+
+.voucher-receipt-buyer {
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: var(--navy);
+}
+
+.voucher-receipt-section {
+  display: flex;
+  flex-direction: column;
+}
+
+.voucher-receipt-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.4rem 0;
+  font-size: 0.88rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.voucher-receipt-row:last-child {
+  border-bottom: none;
+}
+
+.voucher-receipt-row span:first-child {
+  color: var(--text-muted);
+}
+
+.voucher-receipt-row span:last-child {
+  font-weight: 600;
+  color: var(--navy);
+  text-align: right;
+}
+
+.voucher-receipt-row-strong span:last-child {
+  color: var(--navy);
+}
+
+.voucher-receipt-row-total {
+  margin-top: 0.2rem;
+  padding-top: 0.6rem;
+  border-top: 1px dashed var(--border);
+}
+
+.voucher-receipt-row-total span {
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+.voucher-receipt-row-total span:last-child {
+  color: var(--gold-dark);
 }
 
 .admin-readonly-value {

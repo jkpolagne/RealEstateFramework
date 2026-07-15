@@ -41,7 +41,6 @@ import { BrokerDashboardPage } from './pages/broker/BrokerDashboardPage';
 import { ReleasableCommissionPage } from './pages/broker/ReleasableCommissionPage';
 import { TeamOverviewPage } from './pages/broker/TeamOverviewPage';
 import { TopAgentsPage } from './pages/broker/TopAgentsPage';
-import { BrokerSalesManagersPage } from './pages/broker/BrokerSalesManagersPage';
 import { CreateCommissionVoucherPage } from './pages/broker/CreateCommissionVoucherPage';
 import { AllCommissionVouchersPage } from './pages/broker/AllCommissionVouchersPage';
 import { ReleaseCommissionPage } from './pages/broker/ReleaseCommissionPage';
@@ -89,7 +88,6 @@ const BROKER_NAV = [
   { to: 'releasable-commission', label: 'Releasable Commission' },
   { to: 'team-overview', label: 'Team Overview' },
   { to: 'top-agents', label: 'Top Agents' },
-  { to: 'sales-managers', label: 'Sales Managers' },
   { to: 'create-commission-voucher', label: 'Create Commission Voucher' },
   { to: 'all-commission-vouchers', label: 'All Commission Vouchers' },
   { to: 'release-commission', label: 'Release Commission' },
@@ -169,7 +167,6 @@ function App() {
             <Route path="releasable-commission" element={<ReleasableCommissionPage />} />
             <Route path="team-overview" element={<TeamOverviewPage />} />
             <Route path="top-agents" element={<TopAgentsPage />} />
-            <Route path="sales-managers" element={<BrokerSalesManagersPage />} />
             <Route path="create-commission-voucher" element={<CreateCommissionVoucherPage />} />
             <Route path="all-commission-vouchers" element={<AllCommissionVouchersPage />} />
             <Route path="release-commission" element={<ReleaseCommissionPage />} />

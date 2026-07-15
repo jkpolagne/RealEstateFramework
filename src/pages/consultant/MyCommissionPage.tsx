@@ -4,6 +4,7 @@ import { getVouchersByConsultant } from '../../services/commissionVoucherService
 import { useConsultantSession } from '../../context/ConsultantSessionContext';
 import { StatTile } from '../../components/shared/StatTile';
 import { formatPHP } from '../../lib/format';
+import { VoucherDetailsModal } from '../../components/shared/VoucherDetailsModal';
 
 function statusBadgeClass(status: CommissionVoucher['status']): string {
   if (status === 'Released') return 'badge-available';
@@ -16,6 +17,7 @@ export function MyCommissionPage() {
   const { consultantId } = useConsultantSession();
   const [vouchers, setVouchers] = useState<CommissionVoucher[]>([]);
   const [loading, setLoading] = useState(true);
+  const [viewingVoucher, setViewingVoucher] = useState<CommissionVoucher | null>(null);
 
   useEffect(() => {
     getVouchersByConsultant(consultantId).then((result) => {
@@ -65,6 +67,7 @@ export function MyCommissionPage() {
                 <th>Rate</th>
                 <th>Net Receivable</th>
                 <th>Status</th>
+                <th></th>
               </tr>
             </thead>
             <tbody>
@@ -79,12 +82,19 @@ export function MyCommissionPage() {
                   <td>
                     <span className={`badge ${statusBadgeClass(voucher.status)}`}>{voucher.status}</span>
                   </td>
+                  <td>
+                    <button type="button" className="btn btn-outline btn-sm" onClick={() => setViewingVoucher(voucher)}>
+                      View Details
+                    </button>
+                  </td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
       )}
+
+      {viewingVoucher && <VoucherDetailsModal voucher={viewingVoucher} onClose={() => setViewingVoucher(null)} />}
     </div>
   );
 }
