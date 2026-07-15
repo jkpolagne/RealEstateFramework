@@ -157,6 +157,14 @@ textarea {
   border-left: 4px solid var(--gold);
 }
 
+.card-accent-success {
+  border-left: 4px solid var(--success);
+}
+
+.card-accent-warning {
+  border-left: 4px solid var(--warning);
+}
+
 /* Badges */
 .badge {
   display: inline-flex;
@@ -181,6 +189,11 @@ textarea {
 .badge-sold {
   background: var(--danger-bg);
   color: var(--danger);
+}
+.badge-neutral {
+  background: var(--bg);
+  color: var(--navy);
+  border: 1px solid var(--border);
 }
 
 /* Form fields */
@@ -1170,4 +1183,160 @@ textarea {
     flex-direction: row;
     flex-wrap: wrap;
   }
+}
+
+/* Super Admin: Companies portfolio grid */
+.company-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.1rem;
+}
+
+.company-card {
+  padding: 1.1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+
+.company-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.company-card-code {
+  font-family: ui-monospace, Consolas, monospace;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  letter-spacing: 0.03em;
+}
+
+.company-card-name {
+  font-size: 1.05rem;
+}
+
+.company-card-address {
+  font-size: 0.85rem;
+}
+
+.company-card-meta {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+  background: var(--bg);
+  border-radius: 8px;
+  padding: 0.6rem 0.75rem;
+  margin: 0.2rem 0;
+}
+
+.company-card-meta dt {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.company-card-meta dd {
+  margin: 0;
+  font-weight: 700;
+  color: var(--navy);
+  font-size: 0.9rem;
+}
+
+.company-card-email {
+  font-size: 0.82rem;
+  word-break: break-word;
+}
+
+/* Super Admin: full-page create forms */
+.admin-form-card {
+  max-width: 560px;
+  padding: 1.5rem;
+}
+
+.admin-confirmation {
+  max-width: 560px;
+  padding: 1.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.admin-confirmation-title {
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: var(--success);
+}
+
+.admin-confirmation-details {
+  margin: 0.4rem 0;
+}
+
+.admin-confirmation-actions {
+  display: flex;
+  gap: 0.7rem;
+  margin-top: 0.6rem;
+}
+
+/* Super Admin: System Logs timeline */
+.timeline {
+  padding: 1.4rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.timeline-item {
+  display: flex;
+  gap: 0.9rem;
+  padding-bottom: 1.4rem;
+  position: relative;
+}
+
+.timeline-item:not(:last-child)::before {
+  content: '';
+  position: absolute;
+  left: 5px;
+  top: 16px;
+  bottom: 0;
+  width: 2px;
+  background: var(--border);
+}
+
+.timeline-dot {
+  flex: 0 0 12px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  margin-top: 4px;
+  background: var(--gold);
+}
+
+.timeline-dot-navy {
+  background: var(--navy-700);
+}
+.timeline-dot-success {
+  background: var(--success);
+}
+.timeline-dot-warning {
+  background: var(--warning);
+}
+
+.timeline-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.timeline-content-top {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.timeline-time {
+  font-size: 0.78rem;
 }

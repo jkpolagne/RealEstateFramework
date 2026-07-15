@@ -10,6 +10,11 @@ import { ManageDevelopersPage } from './pages/company-admin/ManageDevelopersPage
 import { ManagePropertiesPage } from './pages/company-admin/ManagePropertiesPage';
 import { LoanQuotationPage } from './pages/company-admin/LoanQuotationPage';
 import { ComingSoonPage } from './pages/company-admin/ComingSoonPage';
+import { SuperAdminLayout } from './pages/super-admin/SuperAdminLayout';
+import { CompaniesPage } from './pages/super-admin/CompaniesPage';
+import { CreateCompanyPage } from './pages/super-admin/CreateCompanyPage';
+import { CreateCompanyAdminPage } from './pages/super-admin/CreateCompanyAdminPage';
+import { SystemLogsPage } from './pages/super-admin/SystemLogsPage';
 
 function App() {
   return (
@@ -33,6 +38,14 @@ function App() {
             <Route path="consultant-links" element={<ComingSoonPage title="Consultant Links" />} />
             <Route path="sales-report" element={<ComingSoonPage title="Sales Report" />} />
             <Route path="notifications" element={<ComingSoonPage title="Notifications" />} />
+          </Route>
+
+          <Route path="/super-admin" element={<SuperAdminLayout />}>
+            <Route index element={<Navigate to="companies" replace />} />
+            <Route path="companies" element={<CompaniesPage />} />
+            <Route path="create-company" element={<CreateCompanyPage />} />
+            <Route path="create-company-admin" element={<CreateCompanyAdminPage />} />
+            <Route path="system-logs" element={<SystemLogsPage />} />
           </Route>
         </Routes>
       </ConsultantLinkProvider>

@@ -137,3 +137,49 @@ export interface AddLoanQuotationInput {
   monthlyAmortization: number;
   paymentBreakdownDescription: string;
 }
+
+export interface Company {
+  id: string;
+  /** Sequential display code, e.g. "C-001". */
+  code: string;
+  name: string;
+  address: string;
+  email: string;
+  contactNumber: string;
+  status: 'active' | 'inactive';
+  createdAt: string;
+}
+
+export interface AddCompanyInput {
+  name: string;
+  address: string;
+  email: string;
+  contactNumber: string;
+  status: 'active' | 'inactive';
+}
+
+export interface CompanyAdminAccount {
+  id: string;
+  companyId: string;
+  name: string;
+  email: string;
+  temporaryPassword: string;
+  createdAt: string;
+}
+
+export interface AddCompanyAdminInput {
+  companyId: string;
+  name: string;
+  email: string;
+  temporaryPassword: string;
+}
+
+export type SystemLogEventType = 'company_created' | 'company_status_changed' | 'admin_created';
+
+export interface SystemLogEntry {
+  id: string;
+  type: SystemLogEventType;
+  message: string;
+  companyId: string | null;
+  timestamp: string;
+}
