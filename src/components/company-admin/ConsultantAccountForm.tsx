@@ -114,8 +114,10 @@ export function ConsultantAccountForm({ account, onClose, onSaved }: ConsultantA
                   <label htmlFor="consultant-contact">Contact number</label>
                   <input
                     id="consultant-contact"
-                    type="text"
+                    type="tel"
                     required
+                    pattern="[0-9+()\-\s]{7,}"
+                    title="Enter a valid phone number (digits, spaces, +, -, or parentheses)."
                     value={contactNumber}
                     onChange={(e) => setContactNumber(e.target.value)}
                   />
@@ -128,9 +130,11 @@ export function ConsultantAccountForm({ account, onClose, onSaved }: ConsultantA
                     id="consultant-password"
                     type="password"
                     required
+                    minLength={8}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                   />
+                  <p className="text-muted field-help">At least 8 characters.</p>
                 </div>
               )}
             </fieldset>

@@ -60,6 +60,8 @@ export function LoanQuotationForm({ quotation, onClose, onSaved }: LoanQuotation
     };
   }, [selectedProperty, downPaymentAmount, monthlyAmortization, termMonths]);
 
+  const downPaymentExceedsPrice = Boolean(selectedProperty) && (Number(downPaymentAmount) || 0) > (selectedProperty?.price ?? 0);
+
   function handleSuggestMonthly() {
     if (!selectedProperty) return;
     const suggestion = suggestMonthlyAmortization(
@@ -74,8 +76,14 @@ export function LoanQuotationForm({ quotation, onClose, onSaved }: LoanQuotation
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!selectedProperty) return;
-    setSubmitting(true);
     setError(null);
+    if (downPaymentExceedsPrice) {
+      setError(
+        `Down payment (${formatPHP(Number(downPaymentAmount) || 0)}) can't exceed the property price (${formatPHP(selectedProperty.price)}).`,
+      );
+      return;
+    }
+    setSubmitting(true);
     const input: AddLoanQuotationInput = {
       propertyId: selectedProperty.id,
       interestRate: Number(interestRate),
@@ -143,6 +151,7 @@ export function LoanQuotationForm({ quotation, onClose, onSaved }: LoanQuotation
                     id="quote-interest"
                     type="number"
                     min={0}
+                    max={30}
                     step="0.1"
                     required
                     value={interestRate}
@@ -155,6 +164,7 @@ export function LoanQuotationForm({ quotation, onClose, onSaved }: LoanQuotation
                     id="quote-term"
                     type="number"
                     min={1}
+                    max={360}
                     required
                     value={termMonths}
                     onChange={(e) => setTermMonths(e.target.value)}
@@ -185,13 +195,21 @@ export function LoanQuotationForm({ quotation, onClose, onSaved }: LoanQuotation
                     id="quote-dp-amount"
                     type="number"
                     min={0}
+                    max={selectedProperty?.price}
                     required
+                    aria-invalid={downPaymentExceedsPrice}
+                    aria-describedby={downPaymentExceedsPrice ? 'quote-dp-error' : undefined}
                     value={downPaymentAmount}
                     onChange={(e) => {
                       setTouchedDownPayment(true);
                       setDownPaymentAmount(e.target.value);
                     }}
                   />
+                  {downPaymentExceedsPrice && (
+                    <p id="quote-dp-error" className="field-help field-help-danger">
+                      Can't exceed the property price.
+                    </p>
+                  )}
                 </div>
               </div>
 
@@ -244,9 +262,17 @@ export function LoanQuotationForm({ quotation, onClose, onSaved }: LoanQuotation
               </fieldset>
             )}
 
-            {error && <p className="form-error">{error}</p>}
+            {error && (
+              <p className="form-error" role="alert">
+                {error}
+              </p>
+            )}
 
-            <button type="submit" className="btn btn-primary btn-block" disabled={submitting || !selectedProperty}>
+            <button
+              type="submit"
+              className="btn btn-primary btn-block"
+              disabled={submitting || !selectedProperty || downPaymentExceedsPrice}
+            >
               {submitting ? 'Saving...' : isEdit ? 'Save Changes' : 'Add Quotation'}
             </button>
           </form>

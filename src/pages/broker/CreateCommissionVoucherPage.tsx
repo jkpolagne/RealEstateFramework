@@ -26,6 +26,7 @@ export function CreateCommissionVoucherPage() {
   const [submitting, setSubmitting] = useState(false);
   const [created, setCreated] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [validationError, setValidationError] = useState<string | null>(null);
 
   useEffect(() => {
     Promise.all([getClients(), getCommissionVouchers(), getConsultantAccounts(), getAllDevelopers()]).then(
@@ -59,10 +60,18 @@ export function CreateCommissionVoucherPage() {
   }, [selected]);
 
   const preview = selected ? previewVoucherAmounts(selected.client, selected.role as VoucherRole, Number(adcom) || 0) : null;
+  const adcomExceedsGross = Boolean(preview) && (Number(adcom) || 0) > (preview?.grossCommission ?? 0);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!selected) return;
+    setValidationError(null);
+    if (adcomExceedsGross) {
+      setValidationError(
+        `ADCOM (${formatPHP(Number(adcom) || 0)}) can't exceed the gross commission (${formatPHP(preview?.grossCommission ?? 0)}).`,
+      );
+      return;
+    }
     setSubmitting(true);
     await createCommissionVoucher({
       client: selected.client,
@@ -206,7 +215,15 @@ export function CreateCommissionVoucherPage() {
                 </div>
                 <div className="field">
                   <label htmlFor="voucher-adcom">Less ADCOM (₱)</label>
-                  <input id="voucher-adcom" type="number" min={0} value={adcom} onChange={(e) => setAdcom(e.target.value)} />
+                  <input
+                    id="voucher-adcom"
+                    type="number"
+                    min={0}
+                    max={preview?.grossCommission}
+                    value={adcom}
+                    onChange={(e) => setAdcom(e.target.value)}
+                  />
+                  {adcomExceedsGross && <p className="field-help field-help-danger">Can't exceed the gross commission.</p>}
                 </div>
               </fieldset>
 
@@ -243,7 +260,9 @@ export function CreateCommissionVoucherPage() {
                 </p>
               </fieldset>
 
-              <button type="submit" className="btn btn-primary btn-block" disabled={submitting}>
+              {validationError && <p className="form-error">{validationError}</p>}
+
+              <button type="submit" className="btn btn-primary btn-block" disabled={submitting || adcomExceedsGross}>
                 {submitting ? 'Creating...' : 'Create Voucher'}
               </button>
             </>

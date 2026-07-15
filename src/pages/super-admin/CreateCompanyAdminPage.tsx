@@ -109,6 +109,7 @@ export function CreateCompanyAdminPage() {
               id="admin-password"
               type="text"
               required
+              minLength={8}
               value={temporaryPassword}
               onChange={(e) => setTemporaryPassword(e.target.value)}
             />

@@ -2686,6 +2686,11 @@ textarea {
   margin-top: -0.15rem;
 }
 
+.field-help-danger {
+  color: var(--danger);
+  font-weight: 600;
+}
+
 .field-row-2x2 {
   grid-template-columns: 1fr 1fr;
 }

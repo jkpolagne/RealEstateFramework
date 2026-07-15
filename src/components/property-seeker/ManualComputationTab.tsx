@@ -79,7 +79,14 @@ export function ManualComputationTab() {
             <div className="field">
               <label htmlFor="manual-term">Term</label>
               <div className="loanpage-unit-input">
-                <input id="manual-term" type="number" min={1} value={termYears} onChange={(e) => setTermYears(e.target.value)} />
+                <input
+                  id="manual-term"
+                  type="number"
+                  min={1}
+                  max={30}
+                  value={termYears}
+                  onChange={(e) => setTermYears(e.target.value)}
+                />
                 <span>yrs</span>
               </div>
             </div>
@@ -90,6 +97,7 @@ export function ManualComputationTab() {
                   id="manual-rate"
                   type="number"
                   min={0}
+                  max={30}
                   step="0.1"
                   value={interestRate}
                   onChange={(e) => setInterestRate(e.target.value)}

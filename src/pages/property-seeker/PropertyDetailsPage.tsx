@@ -163,9 +163,13 @@ export function PropertyDetailsPage() {
               type="button"
               className="btn btn-primary btn-block"
               onClick={() => setScheduleOpen(true)}
-              disabled={property.status === 'sold'}
+              disabled={property.status !== 'available'}
             >
-              {property.status === 'sold' ? 'Sold — Not Available' : 'Schedule Visit'}
+              {property.status === 'sold'
+                ? 'Sold — Not Available'
+                : property.status === 'reserved'
+                  ? 'Reserved — Not Available'
+                  : 'Schedule Visit'}
             </button>
             <button
               type="button"

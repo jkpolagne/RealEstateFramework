@@ -168,11 +168,29 @@ export function PropertyForm({ property, onClose, onSaved }: PropertyFormProps) 
               <div className="field-row">
                 <div className="field">
                   <label htmlFor="prop-lat">Latitude</label>
-                  <input id="prop-lat" type="number" step="0.0001" required value={lat} onChange={(e) => setLat(e.target.value)} />
+                  <input
+                    id="prop-lat"
+                    type="number"
+                    step="0.0001"
+                    min={-90}
+                    max={90}
+                    required
+                    value={lat}
+                    onChange={(e) => setLat(e.target.value)}
+                  />
                 </div>
                 <div className="field">
                   <label htmlFor="prop-lng">Longitude</label>
-                  <input id="prop-lng" type="number" step="0.0001" required value={lng} onChange={(e) => setLng(e.target.value)} />
+                  <input
+                    id="prop-lng"
+                    type="number"
+                    step="0.0001"
+                    min={-180}
+                    max={180}
+                    required
+                    value={lng}
+                    onChange={(e) => setLng(e.target.value)}
+                  />
                 </div>
               </div>
             </fieldset>

@@ -21,10 +21,26 @@ export function DeveloperForm({ developer, onClose, onSaved }: DeveloperFormProp
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const totalCut = Number(totalCutPercent) || 0;
+  const directTotal = (Number(directBroker) || 0) + (Number(directSalesManager) || 0);
+  const referredTotal = (Number(referredBroker) || 0) + (Number(referredSalesManager) || 0) + (Number(referredSalesPerson) || 0);
+  const directExceeds = directTotal > totalCut;
+  const referredExceeds = referredTotal > totalCut;
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setSubmitting(true);
     setError(null);
+
+    if (directExceeds) {
+      setError(`Direct Sale split (${directTotal}%) exceeds the total developer cut (${totalCut}%). Reduce the Broker/Sales Manager rates or raise the total cut.`);
+      return;
+    }
+    if (referredExceeds) {
+      setError(`Referred Sale split (${referredTotal}%) exceeds the total developer cut (${totalCut}%). Reduce the Broker/Sales Manager/Sales Person rates or raise the total cut.`);
+      return;
+    }
+
+    setSubmitting(true);
     const input: AddDeveloperInput = {
       name,
       totalCutPercent: Number(totalCutPercent),
@@ -105,8 +121,11 @@ export function DeveloperForm({ developer, onClose, onSaved }: DeveloperFormProp
                     id="direct-broker"
                     type="number"
                     min={0}
+                    max={100}
                     step="0.1"
                     required
+                    aria-invalid={directExceeds}
+                    aria-describedby={directExceeds ? 'direct-sale-total' : undefined}
                     value={directBroker}
                     onChange={(e) => setDirectBroker(e.target.value)}
                   />
@@ -117,13 +136,20 @@ export function DeveloperForm({ developer, onClose, onSaved }: DeveloperFormProp
                     id="direct-sm"
                     type="number"
                     min={0}
+                    max={100}
                     step="0.1"
                     required
+                    aria-invalid={directExceeds}
+                    aria-describedby={directExceeds ? 'direct-sale-total' : undefined}
                     value={directSalesManager}
                     onChange={(e) => setDirectSalesManager(e.target.value)}
                   />
                 </div>
               </div>
+              <p id="direct-sale-total" className={`field-help ${directExceeds ? 'field-help-danger' : 'text-muted'}`}>
+                Direct Sale total: {directTotal}% of {totalCut}% cut
+                {directExceeds ? ' — exceeds the total developer cut.' : ''}
+              </p>
             </fieldset>
 
             <fieldset className="admin-fieldset">
@@ -136,8 +162,11 @@ export function DeveloperForm({ developer, onClose, onSaved }: DeveloperFormProp
                     id="referred-broker"
                     type="number"
                     min={0}
+                    max={100}
                     step="0.1"
                     required
+                    aria-invalid={referredExceeds}
+                    aria-describedby={referredExceeds ? 'referred-sale-total' : undefined}
                     value={referredBroker}
                     onChange={(e) => setReferredBroker(e.target.value)}
                   />
@@ -148,8 +177,11 @@ export function DeveloperForm({ developer, onClose, onSaved }: DeveloperFormProp
                     id="referred-sm"
                     type="number"
                     min={0}
+                    max={100}
                     step="0.1"
                     required
+                    aria-invalid={referredExceeds}
+                    aria-describedby={referredExceeds ? 'referred-sale-total' : undefined}
                     value={referredSalesManager}
                     onChange={(e) => setReferredSalesManager(e.target.value)}
                   />
@@ -160,18 +192,29 @@ export function DeveloperForm({ developer, onClose, onSaved }: DeveloperFormProp
                     id="referred-sp"
                     type="number"
                     min={0}
+                    max={100}
                     step="0.1"
                     required
+                    aria-invalid={referredExceeds}
+                    aria-describedby={referredExceeds ? 'referred-sale-total' : undefined}
                     value={referredSalesPerson}
                     onChange={(e) => setReferredSalesPerson(e.target.value)}
                   />
                 </div>
               </div>
+              <p id="referred-sale-total" className={`field-help ${referredExceeds ? 'field-help-danger' : 'text-muted'}`}>
+                Referred Sale total: {referredTotal}% of {totalCut}% cut
+                {referredExceeds ? ' — exceeds the total developer cut.' : ''}
+              </p>
             </fieldset>
 
-            {error && <p className="form-error">{error}</p>}
+            {error && (
+              <p className="form-error" role="alert">
+                {error}
+              </p>
+            )}
 
-            <button type="submit" className="btn btn-primary btn-block" disabled={submitting}>
+            <button type="submit" className="btn btn-primary btn-block" disabled={submitting || directExceeds || referredExceeds}>
               {submitting ? 'Saving...' : isEdit ? 'Save Changes' : 'Add Developer'}
             </button>
           </form>

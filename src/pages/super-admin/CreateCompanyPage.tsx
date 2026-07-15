@@ -88,8 +88,10 @@ export function CreateCompanyPage() {
             <label htmlFor="company-contact">Contact number</label>
             <input
               id="company-contact"
-              type="text"
+              type="tel"
               required
+              pattern="[0-9+()\-\s]{7,}"
+              title="Enter a valid phone number (digits, spaces, +, -, or parentheses)."
               value={contactNumber}
               onChange={(e) => setContactNumber(e.target.value)}
             />

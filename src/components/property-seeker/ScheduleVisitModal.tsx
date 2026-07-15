@@ -8,6 +8,8 @@ interface ScheduleVisitModalProps {
   onClose: () => void;
 }
 
+const TODAY = new Date().toISOString().slice(0, 10);
+
 export function ScheduleVisitModal({ propertyId, propertyName, onClose }: ScheduleVisitModalProps) {
   const { activeLink } = useConsultantLink();
   const [fullName, setFullName] = useState('');
@@ -68,7 +70,15 @@ export function ScheduleVisitModal({ propertyId, propertyName, onClose }: Schedu
               </div>
               <div className="field">
                 <label htmlFor="visit-phone">Phone number</label>
-                <input id="visit-phone" type="tel" required value={phone} onChange={(e) => setPhone(e.target.value)} />
+                <input
+                  id="visit-phone"
+                  type="tel"
+                  required
+                  pattern="[0-9+()\-\s]{7,}"
+                  title="Enter a valid phone number (digits, spaces, +, -, or parentheses)."
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                />
               </div>
               <div className="field-row">
                 <div className="field">
@@ -77,6 +87,7 @@ export function ScheduleVisitModal({ propertyId, propertyName, onClose }: Schedu
                     id="visit-date"
                     type="date"
                     required
+                    min={TODAY}
                     value={preferredDate}
                     onChange={(e) => setPreferredDate(e.target.value)}
                   />

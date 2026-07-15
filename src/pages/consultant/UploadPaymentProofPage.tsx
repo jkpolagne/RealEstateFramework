@@ -13,15 +13,18 @@ function readAsDataUrl(file: File): Promise<string> {
   });
 }
 
+const TODAY = new Date().toISOString().slice(0, 10);
+
 export function UploadPaymentProofPage() {
   const { consultantId, role } = useConsultantSession();
   const [clients, setClients] = useState<Client[]>([]);
   const [clientId, setClientId] = useState('');
   const [amount, setAmount] = useState('');
-  const [paymentDate, setPaymentDate] = useState(new Date().toISOString().slice(0, 10));
+  const [paymentDate, setPaymentDate] = useState(TODAY);
   const [method, setMethod] = useState('Bank transfer');
   const [proofImage, setProofImage] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [validationError, setValidationError] = useState<string | null>(null);
   const [result, setResult] = useState<{ progress: number; newTranchesDue: number } | null>(null);
 
   async function handleProofFile(fileList: FileList | null) {
@@ -39,6 +42,10 @@ export function UploadPaymentProofPage() {
   }, [consultantId, role]);
 
   const selectedClient = clients.find((c) => c.id === clientId) ?? null;
+  const remainingBalance = selectedClient
+    ? Math.round(selectedClient.salePrice * (1 - selectedClient.paymentProgressPercent / 100))
+    : 0;
+  const amountExceedsBalance = Boolean(selectedClient) && (Number(amount) || 0) > remainingBalance;
 
   function resetForm() {
     setAmount('');
@@ -49,6 +56,13 @@ export function UploadPaymentProofPage() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!selectedClient || !proofImage) return;
+    setValidationError(null);
+    if (amountExceedsBalance) {
+      setValidationError(
+        `Amount (${formatPHP(Number(amount) || 0)}) can't exceed ${selectedClient.fullName}'s remaining balance (${formatPHP(remainingBalance)}).`,
+      );
+      return;
+    }
     setSubmitting(true);
     const { client, newTranchesDue } = await recordPayment({
       clientId: selectedClient.id,
@@ -112,7 +126,8 @@ export function UploadPaymentProofPage() {
           <div className="field">
             <label>Current progress</label>
             <p className="text-muted">
-              {selectedClient.paymentProgressPercent}% of {formatPHP(selectedClient.salePrice)} paid
+              {selectedClient.paymentProgressPercent}% of {formatPHP(selectedClient.salePrice)} paid — {formatPHP(remainingBalance)}{' '}
+              remaining
             </p>
           </div>
         )}
@@ -120,7 +135,16 @@ export function UploadPaymentProofPage() {
         <div className="field-row">
           <div className="field">
             <label htmlFor="payment-amount">Amount (₱)</label>
-            <input id="payment-amount" type="number" min={0} required value={amount} onChange={(e) => setAmount(e.target.value)} />
+            <input
+              id="payment-amount"
+              type="number"
+              min={0}
+              max={selectedClient ? remainingBalance : undefined}
+              required
+              value={amount}
+              onChange={(e) => setAmount(e.target.value)}
+            />
+            {amountExceedsBalance && <p className="field-help field-help-danger">Exceeds the remaining balance.</p>}
           </div>
           <div className="field">
             <label htmlFor="payment-date">Payment date</label>
@@ -128,6 +152,7 @@ export function UploadPaymentProofPage() {
               id="payment-date"
               type="date"
               required
+              max={TODAY}
               value={paymentDate}
               onChange={(e) => setPaymentDate(e.target.value)}
             />
@@ -166,7 +191,13 @@ export function UploadPaymentProofPage() {
           )}
         </div>
 
-        <button type="submit" className="btn btn-primary btn-block" disabled={submitting || !selectedClient || !proofImage}>
+        {validationError && <p className="form-error">{validationError}</p>}
+
+        <button
+          type="submit"
+          className="btn btn-primary btn-block"
+          disabled={submitting || !selectedClient || !proofImage || amountExceedsBalance}
+        >
           {submitting ? 'Saving...' : 'Save Payment'}
         </button>
       </form>
