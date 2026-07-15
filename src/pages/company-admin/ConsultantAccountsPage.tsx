@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import type { ConsultantAccount, ConsultantRole } from '../../types';
-import { getConsultantAccounts } from '../../services/consultantAccountService';
-import { AddConsultantAccountForm } from '../../components/company-admin/AddConsultantAccountForm';
+import { getConsultantAccounts, deleteConsultantAccount } from '../../services/consultantAccountService';
+import { ConsultantAccountForm } from '../../components/company-admin/ConsultantAccountForm';
+import { ConfirmDialog } from '../../components/shared/ConfirmDialog';
 
 type RoleFilter = 'all' | ConsultantRole;
 type StatusFilter = 'all' | 'active' | 'inactive';
@@ -13,6 +14,10 @@ export function ConsultantAccountsPage() {
   const [roleFilter, setRoleFilter] = useState<RoleFilter>('all');
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
   const [showAddForm, setShowAddForm] = useState(false);
+  const [editingAccount, setEditingAccount] = useState<ConsultantAccount | null>(null);
+  const [deletingAccount, setDeletingAccount] = useState<ConsultantAccount | null>(null);
+  const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   function refresh() {
     setLoading(true);
@@ -28,6 +33,21 @@ export function ConsultantAccountsPage() {
     if (!id) return '—';
     const supervisor = accounts.find((a) => a.id === id);
     return supervisor ? `${supervisor.firstName} ${supervisor.lastName}` : '—';
+  }
+
+  async function handleDelete() {
+    if (!deletingAccount) return;
+    setDeleting(true);
+    setDeleteError(null);
+    try {
+      await deleteConsultantAccount(deletingAccount.id);
+      setDeletingAccount(null);
+      refresh();
+    } catch (err) {
+      setDeleteError(err instanceof Error ? err.message : 'Something went wrong.');
+    } finally {
+      setDeleting(false);
+    }
   }
 
   const filtered = accounts.filter((account) => {
@@ -85,12 +105,13 @@ export function ConsultantAccountsPage() {
                 <th>Role</th>
                 <th>Assigned Under</th>
                 <th>Status</th>
+                <th></th>
               </tr>
             </thead>
             <tbody>
               {filtered.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="text-muted admin-table-empty">
+                  <td colSpan={7} className="text-muted admin-table-empty">
                     No consultant accounts match your filters.
                   </td>
                 </tr>
@@ -109,6 +130,23 @@ export function ConsultantAccountsPage() {
                         {account.status === 'active' ? 'Active' : 'Inactive'}
                       </span>
                     </td>
+                    <td>
+                      <div className="admin-row-actions">
+                        <button type="button" className="btn btn-outline btn-sm" onClick={() => setEditingAccount(account)}>
+                          Edit
+                        </button>
+                        <button
+                          type="button"
+                          className="btn btn-outline btn-sm"
+                          onClick={() => {
+                            setDeletingAccount(account);
+                            setDeleteError(null);
+                          }}
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </td>
                   </tr>
                 ))
               )}
@@ -117,7 +155,20 @@ export function ConsultantAccountsPage() {
         </div>
       )}
 
-      {showAddForm && <AddConsultantAccountForm onClose={() => setShowAddForm(false)} onAdded={refresh} />}
+      {showAddForm && <ConsultantAccountForm onClose={() => setShowAddForm(false)} onSaved={refresh} />}
+      {editingAccount && (
+        <ConsultantAccountForm account={editingAccount} onClose={() => setEditingAccount(null)} onSaved={refresh} />
+      )}
+      {deletingAccount && (
+        <ConfirmDialog
+          title="Delete Consultant Account"
+          message={`Are you sure you want to delete "${deletingAccount.firstName} ${deletingAccount.lastName}"? This cannot be undone.`}
+          confirming={deleting}
+          error={deleteError}
+          onConfirm={handleDelete}
+          onCancel={() => setDeletingAccount(null)}
+        />
+      )}
     </div>
   );
 }

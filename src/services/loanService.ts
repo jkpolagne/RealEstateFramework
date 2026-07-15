@@ -1,6 +1,7 @@
 import type { AddLoanQuotationInput, LoanQuotation, Property } from '../types';
 import { loanQuotations } from '../mocks/loanQuotations';
 import { delay } from '../lib/delay';
+import { amortize } from '../lib/amortize';
 
 export async function getLoanQuotationsByDeveloper(developerId: string): Promise<LoanQuotation[]> {
   await delay();
@@ -46,6 +47,47 @@ export async function addLoanQuotation(
   return quotation;
 }
 
+export async function updateLoanQuotation(
+  id: string,
+  input: AddLoanQuotationInput,
+  property: Property,
+): Promise<LoanQuotation> {
+  await delay(400);
+  const quotation = loanQuotations.find((q) => q.id === id);
+  if (!quotation) throw new Error('Loan quotation not found');
+  const principal = property.price - input.downPaymentAmount;
+  const totalAmountPayable = input.monthlyAmortization * input.termMonths;
+
+  Object.assign(quotation, {
+    propertyId: input.propertyId,
+    developerId: property.developerId,
+    propertyPrice: property.price,
+    interestRate: input.interestRate,
+    downPaymentPercent: input.downPaymentPercent,
+    downPaymentAmount: input.downPaymentAmount,
+    termMonths: input.termMonths,
+    monthlyAmortization: input.monthlyAmortization,
+    netLoanAmount: principal,
+    totalInterestPaid: totalAmountPayable - principal,
+    totalAmountPayable,
+    principal,
+    paymentBreakdownDescription: input.paymentBreakdownDescription,
+  });
+  return quotation;
+}
+
+export async function deleteLoanQuotation(id: string): Promise<void> {
+  await delay(300);
+  const index = loanQuotations.findIndex((q) => q.id === id);
+  if (index !== -1) loanQuotations.splice(index, 1);
+}
+
+/** Suggests a monthly amortization for the Add/Edit Quotation form, using the same formula as the seed data. */
+export function suggestMonthlyAmortization(propertyPrice: number, downPaymentAmount: number, interestRate: number, termMonths: number): number {
+  const principal = propertyPrice - downPaymentAmount;
+  return Math.round(amortize(principal, interestRate, termMonths));
+}
+
 export interface ManualLoanResult {
   monthlyBudget: number;
   maxAffordablePrice: number;
@@ -61,11 +103,7 @@ export async function computeManualLoan(totalBudget: number, allProperties: Prop
   await delay(200);
 
   const financedAmount = totalBudget * (1 - ASSUMED_DOWN_PAYMENT_PERCENT / 100);
-  const r = ASSUMED_ANNUAL_RATE / 100 / 12;
-  const monthlyBudget = Math.round(
-    (financedAmount * r * Math.pow(1 + r, ASSUMED_TERM_MONTHS)) /
-      (Math.pow(1 + r, ASSUMED_TERM_MONTHS) - 1),
-  );
+  const monthlyBudget = Math.round(amortize(financedAmount, ASSUMED_ANNUAL_RATE, ASSUMED_TERM_MONTHS));
 
   const maxAffordablePrice = totalBudget;
 

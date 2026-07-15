@@ -137,6 +137,14 @@ textarea {
   color: var(--navy);
 }
 
+.btn-danger {
+  background: var(--danger);
+  color: var(--white);
+}
+.btn-danger:hover:not(:disabled) {
+  background: #8a2b26;
+}
+
 .btn-sm {
   padding: 0.4rem 0.75rem;
   font-size: 0.8rem;
@@ -559,6 +567,8 @@ textarea {
 .modal-body {
   padding: 0 1.3rem 1.3rem;
   overflow-y: auto;
+  flex: 1;
+  min-height: 0;
 }
 
 .tabs {
@@ -1165,7 +1175,7 @@ textarea {
 }
 
 .admin-property-modal {
-  max-width: 640px;
+  max-width: 720px;
 }
 
 .image-upload-preview {
@@ -1785,4 +1795,55 @@ textarea {
   border: 1px solid var(--border);
   font-family: var(--font-sans);
   font-size: 0.85rem;
+}
+
+/* Confirm dialog */
+.confirm-dialog {
+  max-width: 440px;
+}
+
+.confirm-dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.6rem;
+  margin-top: 1.2rem;
+}
+
+.form-error {
+  background: var(--danger-bg);
+  color: var(--danger);
+  border-radius: 8px;
+  padding: 0.6rem 0.8rem;
+  font-size: 0.85rem;
+  margin-top: 0.7rem;
+}
+
+/* Admin form cleanup: consistent basic-info grouping and section spacing */
+.admin-form-section-title {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin: 0.2rem 0 -0.3rem;
+}
+
+.field-help {
+  font-size: 0.76rem;
+  margin-top: -0.15rem;
+}
+
+.field-row-2x2 {
+  grid-template-columns: 1fr 1fr;
+}
+
+/* Consultant Links: clickable link preview */
+.consultant-link-preview {
+  color: var(--gold-dark);
+  text-decoration: underline;
+  font-family: ui-monospace, Consolas, monospace;
+  font-size: 0.8rem;
+}
+.consultant-link-preview:hover {
+  color: var(--navy);
 }

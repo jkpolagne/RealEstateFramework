@@ -25,7 +25,7 @@ export function ImageUploadField({ images, onChange }: ImageUploadFieldProps) {
 
   return (
     <div className="field">
-      <label htmlFor="property-images">Property images</label>
+      <label htmlFor="property-images">Upload images</label>
       <input
         id="property-images"
         type="file"

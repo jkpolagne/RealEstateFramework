@@ -51,6 +51,11 @@ export function ConsultantLinksPage() {
         <p className="text-muted">Auto-generated referral links for Sales Managers and Sales Persons.</p>
       </div>
 
+      <p className="text-muted admin-form-hint">
+        Click a link below to try it — it opens the public site with that consultant's referral applied, so any Schedule Visit
+        submitted from there is tagged as Referred and credited to them.
+      </p>
+
       <div className="admin-toolbar">
         <input
           type="text"
@@ -97,16 +102,35 @@ export function ConsultantLinksPage() {
                   <tr key={link.id}>
                     <td className="admin-table-name">{link.consultantName}</td>
                     <td>{link.role}</td>
-                    <td className="text-muted admin-table-link">{fullLink(link.slug)}</td>
+                    <td>
+                      <a
+                        className="consultant-link-preview"
+                        href={fullLink(link.slug)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        {fullLink(link.slug)}
+                      </a>
+                    </td>
                     <td>
                       <span className={`badge ${link.status === 'active' ? 'badge-available' : 'badge-reserved'}`}>
                         {link.status === 'active' ? 'Active' : 'Inactive'}
                       </span>
                     </td>
                     <td>
-                      <button type="button" className="btn btn-outline btn-sm" onClick={() => handleCopy(link)}>
-                        {copiedId === link.id ? 'Copied!' : 'Copy Link'}
-                      </button>
+                      <div className="admin-row-actions">
+                        <a
+                          className="btn btn-outline btn-sm"
+                          href={fullLink(link.slug)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          Open
+                        </a>
+                        <button type="button" className="btn btn-outline btn-sm" onClick={() => handleCopy(link)}>
+                          {copiedId === link.id ? 'Copied!' : 'Copy Link'}
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))

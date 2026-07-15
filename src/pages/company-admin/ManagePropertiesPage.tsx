@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
 import type { Developer, Property, PropertyStatus, PropertyType } from '../../types';
-import { getAllPropertiesForAdmin } from '../../services/propertyService';
+import { getAllPropertiesForAdmin, deleteProperty } from '../../services/propertyService';
 import { getAllDevelopers } from '../../services/developerService';
-import { AddPropertyForm } from '../../components/company-admin/AddPropertyForm';
+import { PropertyForm } from '../../components/company-admin/PropertyForm';
 import { StatusBadge } from '../../components/property-seeker/StatusBadge';
+import { ConfirmDialog } from '../../components/shared/ConfirmDialog';
 import { formatPHP } from '../../lib/format';
 
 type TypeFilter = 'all' | PropertyType;
@@ -18,6 +19,10 @@ export function ManagePropertiesPage() {
   const [typeFilter, setTypeFilter] = useState<TypeFilter>('all');
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
   const [showAddForm, setShowAddForm] = useState(false);
+  const [editingProperty, setEditingProperty] = useState<Property | null>(null);
+  const [deletingProperty, setDeletingProperty] = useState<Property | null>(null);
+  const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   function refresh() {
     setLoading(true);
@@ -29,6 +34,21 @@ export function ManagePropertiesPage() {
   }
 
   useEffect(refresh, []);
+
+  async function handleDelete() {
+    if (!deletingProperty) return;
+    setDeleting(true);
+    setDeleteError(null);
+    try {
+      await deleteProperty(deletingProperty.id);
+      setDeletingProperty(null);
+      refresh();
+    } catch (err) {
+      setDeleteError(err instanceof Error ? err.message : 'Something went wrong.');
+    } finally {
+      setDeleting(false);
+    }
+  }
 
   const filtered = properties.filter((property) => {
     if (search && !property.name.toLowerCase().includes(search.toLowerCase())) return false;
@@ -92,12 +112,13 @@ export function ManagePropertiesPage() {
                 <th>Price</th>
                 <th>Status</th>
                 <th>Location</th>
+                <th></th>
               </tr>
             </thead>
             <tbody>
               {filtered.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="text-muted admin-table-empty">
+                  <td colSpan={8} className="text-muted admin-table-empty">
                     No properties match your filters.
                   </td>
                 </tr>
@@ -115,6 +136,23 @@ export function ManagePropertiesPage() {
                       <StatusBadge status={property.status} />
                     </td>
                     <td className="text-muted">{property.location.address}</td>
+                    <td>
+                      <div className="admin-row-actions">
+                        <button type="button" className="btn btn-outline btn-sm" onClick={() => setEditingProperty(property)}>
+                          Edit
+                        </button>
+                        <button
+                          type="button"
+                          className="btn btn-outline btn-sm"
+                          onClick={() => {
+                            setDeletingProperty(property);
+                            setDeleteError(null);
+                          }}
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </td>
                   </tr>
                 ))
               )}
@@ -123,7 +161,20 @@ export function ManagePropertiesPage() {
         </div>
       )}
 
-      {showAddForm && <AddPropertyForm onClose={() => setShowAddForm(false)} onAdded={refresh} />}
+      {showAddForm && <PropertyForm onClose={() => setShowAddForm(false)} onSaved={refresh} />}
+      {editingProperty && (
+        <PropertyForm property={editingProperty} onClose={() => setEditingProperty(null)} onSaved={refresh} />
+      )}
+      {deletingProperty && (
+        <ConfirmDialog
+          title="Delete Property"
+          message={`Are you sure you want to delete "${deletingProperty.name}"? This cannot be undone.`}
+          confirming={deleting}
+          error={deleteError}
+          onConfirm={handleDelete}
+          onCancel={() => setDeletingProperty(null)}
+        />
+      )}
     </div>
   );
 }

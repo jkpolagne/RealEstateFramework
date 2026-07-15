@@ -1,10 +1,6 @@
 import type { LoanQuotation } from '../types';
 import { properties } from './properties';
-
-function amortize(principal: number, annualRatePercent: number, termMonths: number): number {
-  const r = annualRatePercent / 100 / 12;
-  return (principal * r * Math.pow(1 + r, termMonths)) / (Math.pow(1 + r, termMonths) - 1);
-}
+import { amortize } from '../lib/amortize';
 
 interface QuotationSeed {
   propertyId: string;

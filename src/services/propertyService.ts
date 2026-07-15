@@ -1,6 +1,7 @@
 import type { AddPropertyInput, Property, PropertyFilters } from '../types';
 import { properties } from '../mocks/properties';
 import { developers } from '../mocks/developers';
+import { clients } from '../mocks/clients';
 import { delay } from '../lib/delay';
 import { placeholderImage } from '../lib/placeholderImage';
 
@@ -96,4 +97,46 @@ export async function addProperty(input: AddPropertyInput): Promise<Property> {
   };
   properties.push(property);
   return property;
+}
+
+export async function updateProperty(id: string, input: AddPropertyInput): Promise<Property> {
+  await delay(500);
+  const property = properties.find((p) => p.id === id);
+  if (!property) throw new Error('Property not found');
+  const developer = developers.find((d) => d.id === input.developerId);
+  const images = input.images.length > 0 ? input.images : [property.heroImage, ...property.gallery];
+
+  Object.assign(property, {
+    name: input.name,
+    developerId: input.developerId,
+    developerName: developer?.name ?? 'Unknown Developer',
+    type: input.type,
+    price: input.price,
+    status: input.status,
+    location: { address: input.address, lat: input.lat, lng: input.lng },
+    lotArea: input.lotArea,
+    floorArea: input.floorArea,
+    bedrooms: input.bedrooms,
+    bathrooms: input.bathrooms,
+    turnoverStatus: input.turnoverStatus,
+    houseModel: input.houseModel,
+    description: input.description,
+    features: input.features,
+    amenities: input.amenities,
+    heroImage: images[0],
+    gallery: images.slice(1),
+  });
+  return property;
+}
+
+export async function deleteProperty(id: string): Promise<void> {
+  await delay(400);
+  const clientCount = clients.filter((c) => c.propertyId === id).length;
+  if (clientCount > 0) {
+    throw new Error(
+      `Cannot delete this property — ${clientCount} client${clientCount === 1 ? '' : 's'} ${clientCount === 1 ? 'has' : 'have'} an active sale tied to it.`,
+    );
+  }
+  const index = properties.findIndex((p) => p.id === id);
+  if (index !== -1) properties.splice(index, 1);
 }

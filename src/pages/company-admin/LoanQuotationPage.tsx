@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
 import type { LoanQuotation, Property } from '../../types';
-import { getAllLoanQuotations } from '../../services/loanService';
+import { getAllLoanQuotations, deleteLoanQuotation } from '../../services/loanService';
 import { getAllPropertiesForAdmin } from '../../services/propertyService';
-import { AddLoanQuotationForm } from '../../components/company-admin/AddLoanQuotationForm';
+import { LoanQuotationForm } from '../../components/company-admin/LoanQuotationForm';
+import { ConfirmDialog } from '../../components/shared/ConfirmDialog';
 import { formatPHP } from '../../lib/format';
 
 export function LoanQuotationPage() {
@@ -11,6 +12,10 @@ export function LoanQuotationPage() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [showAddForm, setShowAddForm] = useState(false);
+  const [editingQuotation, setEditingQuotation] = useState<LoanQuotation | null>(null);
+  const [deletingQuotation, setDeletingQuotation] = useState<LoanQuotation | null>(null);
+  const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   function refresh() {
     setLoading(true);
@@ -25,6 +30,21 @@ export function LoanQuotationPage() {
 
   function propertyFor(quotation: LoanQuotation): Property | undefined {
     return properties.find((p) => p.id === quotation.propertyId);
+  }
+
+  async function handleDelete() {
+    if (!deletingQuotation) return;
+    setDeleting(true);
+    setDeleteError(null);
+    try {
+      await deleteLoanQuotation(deletingQuotation.id);
+      setDeletingQuotation(null);
+      refresh();
+    } catch (err) {
+      setDeleteError(err instanceof Error ? err.message : 'Something went wrong.');
+    } finally {
+      setDeleting(false);
+    }
   }
 
   const filtered = quotations.filter((quotation) => {
@@ -68,12 +88,13 @@ export function LoanQuotationPage() {
                 <th>Interest Rate</th>
                 <th>Term</th>
                 <th>Monthly Amortization</th>
+                <th></th>
               </tr>
             </thead>
             <tbody>
               {filtered.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="text-muted admin-table-empty">
+                  <td colSpan={8} className="text-muted admin-table-empty">
                     No loan quotations match your search.
                   </td>
                 </tr>
@@ -91,6 +112,23 @@ export function LoanQuotationPage() {
                       <td>{quotation.interestRate}% p.a.</td>
                       <td>{quotation.termMonths} mos</td>
                       <td>{formatPHP(quotation.monthlyAmortization)}</td>
+                      <td>
+                        <div className="admin-row-actions">
+                          <button type="button" className="btn btn-outline btn-sm" onClick={() => setEditingQuotation(quotation)}>
+                            Edit
+                          </button>
+                          <button
+                            type="button"
+                            className="btn btn-outline btn-sm"
+                            onClick={() => {
+                              setDeletingQuotation(quotation);
+                              setDeleteError(null);
+                            }}
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      </td>
                     </tr>
                   );
                 })
@@ -100,7 +138,20 @@ export function LoanQuotationPage() {
         </div>
       )}
 
-      {showAddForm && <AddLoanQuotationForm onClose={() => setShowAddForm(false)} onAdded={refresh} />}
+      {showAddForm && <LoanQuotationForm onClose={() => setShowAddForm(false)} onSaved={refresh} />}
+      {editingQuotation && (
+        <LoanQuotationForm quotation={editingQuotation} onClose={() => setEditingQuotation(null)} onSaved={refresh} />
+      )}
+      {deletingQuotation && (
+        <ConfirmDialog
+          title="Delete Loan Quotation"
+          message={`Are you sure you want to delete the quotation for "${propertyFor(deletingQuotation)?.name ?? 'this property'}"? This cannot be undone.`}
+          confirming={deleting}
+          error={deleteError}
+          onConfirm={handleDelete}
+          onCancel={() => setDeletingQuotation(null)}
+        />
+      )}
     </div>
   );
 }

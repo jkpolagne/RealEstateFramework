@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import type { Developer } from '../../types';
-import { getAllDevelopers } from '../../services/developerService';
-import { AddDeveloperForm } from '../../components/company-admin/AddDeveloperForm';
+import { getAllDevelopers, deleteDeveloper } from '../../services/developerService';
+import { DeveloperForm } from '../../components/company-admin/DeveloperForm';
+import { ConfirmDialog } from '../../components/shared/ConfirmDialog';
 
 type StatusFilter = 'all' | 'active' | 'inactive';
 
@@ -11,6 +12,10 @@ export function ManageDevelopersPage() {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
   const [showAddForm, setShowAddForm] = useState(false);
+  const [editingDeveloper, setEditingDeveloper] = useState<Developer | null>(null);
+  const [deletingDeveloper, setDeletingDeveloper] = useState<Developer | null>(null);
+  const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   function refresh() {
     setLoading(true);
@@ -21,6 +26,21 @@ export function ManageDevelopersPage() {
   }
 
   useEffect(refresh, []);
+
+  async function handleDelete() {
+    if (!deletingDeveloper) return;
+    setDeleting(true);
+    setDeleteError(null);
+    try {
+      await deleteDeveloper(deletingDeveloper.id);
+      setDeletingDeveloper(null);
+      refresh();
+    } catch (err) {
+      setDeleteError(err instanceof Error ? err.message : 'Something went wrong.');
+    } finally {
+      setDeleting(false);
+    }
+  }
 
   const filtered = developers.filter((developer) => {
     if (statusFilter !== 'all' && developer.status !== statusFilter) return false;
@@ -65,12 +85,13 @@ export function ManageDevelopersPage() {
                 <th>Direct Sale (Broker / SM)</th>
                 <th>Referred Sale (Broker / SM / SP)</th>
                 <th>Status</th>
+                <th></th>
               </tr>
             </thead>
             <tbody>
               {filtered.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="text-muted admin-table-empty">
+                  <td colSpan={6} className="text-muted admin-table-empty">
                     No developers match your filters.
                   </td>
                 </tr>
@@ -91,6 +112,23 @@ export function ManageDevelopersPage() {
                         {developer.status === 'active' ? 'Active' : 'Inactive'}
                       </span>
                     </td>
+                    <td>
+                      <div className="admin-row-actions">
+                        <button type="button" className="btn btn-outline btn-sm" onClick={() => setEditingDeveloper(developer)}>
+                          Edit
+                        </button>
+                        <button
+                          type="button"
+                          className="btn btn-outline btn-sm"
+                          onClick={() => {
+                            setDeletingDeveloper(developer);
+                            setDeleteError(null);
+                          }}
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </td>
                   </tr>
                 ))
               )}
@@ -99,7 +137,20 @@ export function ManageDevelopersPage() {
         </div>
       )}
 
-      {showAddForm && <AddDeveloperForm onClose={() => setShowAddForm(false)} onAdded={refresh} />}
+      {showAddForm && <DeveloperForm onClose={() => setShowAddForm(false)} onSaved={refresh} />}
+      {editingDeveloper && (
+        <DeveloperForm developer={editingDeveloper} onClose={() => setEditingDeveloper(null)} onSaved={refresh} />
+      )}
+      {deletingDeveloper && (
+        <ConfirmDialog
+          title="Delete Developer"
+          message={`Are you sure you want to delete "${deletingDeveloper.name}"? This cannot be undone.`}
+          confirming={deleting}
+          error={deleteError}
+          onConfirm={handleDelete}
+          onCancel={() => setDeletingDeveloper(null)}
+        />
+      )}
     </div>
   );
 }

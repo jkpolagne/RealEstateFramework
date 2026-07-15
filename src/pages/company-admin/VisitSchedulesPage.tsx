@@ -1,25 +1,41 @@
 import { useEffect, useState } from 'react';
-import type { Property, VisitRequest } from '../../types';
+import type { ConsultantLink, Property, VisitRequest } from '../../types';
 import { getVisitRequests, updateVisitRequestStatus } from '../../services/visitService';
 import { getAllPropertiesForAdmin } from '../../services/propertyService';
-import { getConsultantLinkById } from '../../services/consultantLinkService';
+import { getConsultantLinks } from '../../services/consultantLinkService';
 
 type StatusFilter = 'all' | 'Pending' | 'Approved' | 'Declined';
+
+function formatPreferredVisit(visit: VisitRequest): string {
+  const date = new Date(`${visit.preferredDate}T00:00:00`).toLocaleDateString('en-PH', { dateStyle: 'medium' });
+  return `${date} at ${visit.preferredTime}`;
+}
+
+function statusBadgeClass(status: VisitRequest['status']): string {
+  if (status === 'Approved') return 'badge-available';
+  if (status === 'Declined') return 'badge-sold';
+  return 'badge-reserved';
+}
 
 export function VisitSchedulesPage() {
   const [visitRequests, setVisitRequests] = useState<VisitRequest[]>([]);
   const [properties, setProperties] = useState<Property[]>([]);
+  const [consultantLinks, setConsultantLinks] = useState<ConsultantLink[]>([]);
   const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('Pending');
   const [actingId, setActingId] = useState<string | null>(null);
 
   function refresh() {
     setLoading(true);
-    Promise.all([getVisitRequests(), getAllPropertiesForAdmin()]).then(([visitResult, propertyResult]) => {
-      setVisitRequests([...visitResult].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()));
-      setProperties(propertyResult);
-      setLoading(false);
-    });
+    Promise.all([getVisitRequests(), getAllPropertiesForAdmin(), getConsultantLinks()]).then(
+      ([visitResult, propertyResult, linkResult]) => {
+        setVisitRequests([...visitResult].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()));
+        setProperties(propertyResult);
+        setConsultantLinks(linkResult);
+        setLoading(false);
+      },
+    );
   }
 
   useEffect(refresh, []);
@@ -35,7 +51,20 @@ export function VisitSchedulesPage() {
     return properties.find((p) => p.id === propertyId)?.name ?? 'Unknown property';
   }
 
-  const filtered = visitRequests.filter((v) => statusFilter === 'all' || v.status === statusFilter);
+  function sourceLabel(visit: VisitRequest): string {
+    if (!visit.sourceLinkId) return 'Direct';
+    const link = consultantLinks.find((l) => l.id === visit.sourceLinkId);
+    return link ? `Referred — ${link.consultantName}` : 'Referred';
+  }
+
+  const filtered = visitRequests.filter((visit) => {
+    if (statusFilter !== 'all' && visit.status !== statusFilter) return false;
+    if (search) {
+      const q = search.toLowerCase();
+      if (!visit.fullName.toLowerCase().includes(q) && !propertyName(visit.propertyId).toLowerCase().includes(q)) return false;
+    }
+    return true;
+  });
 
   return (
     <div>
@@ -45,6 +74,13 @@ export function VisitSchedulesPage() {
       </div>
 
       <div className="admin-toolbar">
+        <input
+          type="text"
+          placeholder="Search by requester or property..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="admin-search"
+        />
         <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value as StatusFilter)}>
           <option value="Pending">Pending</option>
           <option value="Approved">Approved</option>
@@ -56,7 +92,7 @@ export function VisitSchedulesPage() {
       {loading ? (
         <p className="text-muted">Loading visit requests...</p>
       ) : filtered.length === 0 ? (
-        <p className="text-muted">No visit requests match this filter.</p>
+        <p className="text-muted">No visit requests match your filters.</p>
       ) : (
         <div className="admin-table-wrap">
           <table className="admin-table">
@@ -64,7 +100,8 @@ export function VisitSchedulesPage() {
               <tr>
                 <th>Requester</th>
                 <th>Property</th>
-                <th>Contact</th>
+                <th>Email</th>
+                <th>Phone</th>
                 <th>Preferred Visit</th>
                 <th>Source</th>
                 <th>Status</th>
@@ -73,84 +110,44 @@ export function VisitSchedulesPage() {
             </thead>
             <tbody>
               {filtered.map((visit) => (
-                <VisitRow
-                  key={visit.id}
-                  visit={visit}
-                  propertyLabel={propertyName(visit.propertyId)}
-                  acting={actingId === visit.id}
-                  onAction={handleAction}
-                />
+                <tr key={visit.id}>
+                  <td className="admin-table-name">{visit.fullName}</td>
+                  <td>{propertyName(visit.propertyId)}</td>
+                  <td className="text-muted">{visit.email}</td>
+                  <td>{visit.phone}</td>
+                  <td>{formatPreferredVisit(visit)}</td>
+                  <td>{sourceLabel(visit)}</td>
+                  <td>
+                    <span className={`badge ${statusBadgeClass(visit.status)}`}>{visit.status}</span>
+                  </td>
+                  <td>
+                    {visit.status === 'Pending' && (
+                      <div className="admin-row-actions">
+                        <button
+                          type="button"
+                          className="btn btn-primary btn-sm"
+                          disabled={actingId === visit.id}
+                          onClick={() => handleAction(visit.id, 'Approved')}
+                        >
+                          Accept
+                        </button>
+                        <button
+                          type="button"
+                          className="btn btn-outline btn-sm"
+                          disabled={actingId === visit.id}
+                          onClick={() => handleAction(visit.id, 'Declined')}
+                        >
+                          Decline
+                        </button>
+                      </div>
+                    )}
+                  </td>
+                </tr>
               ))}
             </tbody>
           </table>
         </div>
       )}
     </div>
-  );
-}
-
-function VisitRow({
-  visit,
-  propertyLabel,
-  acting,
-  onAction,
-}: {
-  visit: VisitRequest;
-  propertyLabel: string;
-  acting: boolean;
-  onAction: (id: string, status: 'Approved' | 'Declined') => void;
-}) {
-  const [sourceLabel, setSourceLabel] = useState('Direct');
-
-  useEffect(() => {
-    if (!visit.sourceLinkId) {
-      setSourceLabel('Direct');
-      return;
-    }
-    let cancelled = false;
-    getConsultantLinkById(visit.sourceLinkId).then((link) => {
-      if (!cancelled) setSourceLabel(link ? `Referred — ${link.consultantName}` : 'Referred');
-    });
-    return () => {
-      cancelled = true;
-    };
-  }, [visit.sourceLinkId]);
-
-  return (
-    <tr>
-      <td className="admin-table-name">{visit.fullName}</td>
-      <td>{propertyLabel}</td>
-      <td className="text-muted">
-        {visit.email}
-        <br />
-        {visit.phone}
-      </td>
-      <td>
-        {new Date(`${visit.preferredDate}T00:00:00`).toLocaleDateString('en-PH', { dateStyle: 'medium' })} at{' '}
-        {visit.preferredTime}
-      </td>
-      <td>{sourceLabel}</td>
-      <td>
-        <span
-          className={`badge ${
-            visit.status === 'Approved' ? 'badge-available' : visit.status === 'Declined' ? 'badge-sold' : 'badge-reserved'
-          }`}
-        >
-          {visit.status}
-        </span>
-      </td>
-      <td>
-        {visit.status === 'Pending' && (
-          <div className="admin-row-actions">
-            <button type="button" className="btn btn-primary btn-sm" disabled={acting} onClick={() => onAction(visit.id, 'Approved')}>
-              Accept
-            </button>
-            <button type="button" className="btn btn-outline btn-sm" disabled={acting} onClick={() => onAction(visit.id, 'Declined')}>
-              Decline
-            </button>
-          </div>
-        )}
-      </td>
-    </tr>
   );
 }
