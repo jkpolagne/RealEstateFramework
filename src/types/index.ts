@@ -183,3 +183,54 @@ export interface SystemLogEntry {
   companyId: string | null;
   timestamp: string;
 }
+
+export type ConsultantRole = 'Broker' | 'Sales Manager' | 'Sales Person';
+
+export interface ConsultantAccount {
+  id: string;
+  firstName: string;
+  middleName: string;
+  lastName: string;
+  email: string;
+  contactNumber: string;
+  role: ConsultantRole;
+  /** Broker id for a Sales Manager, Sales Manager id for a Sales Person — null for Broker. */
+  assignedUnderId: string | null;
+  status: 'active' | 'inactive';
+  createdAt: string;
+}
+
+export interface AddConsultantAccountInput {
+  firstName: string;
+  middleName: string;
+  lastName: string;
+  email: string;
+  contactNumber: string;
+  password: string;
+  role: ConsultantRole;
+  assignedUnderId: string | null;
+  status: 'active' | 'inactive';
+}
+
+export type SaleType = 'Direct' | 'Referred';
+
+export interface Sale {
+  id: string;
+  propertyId: string;
+  developerId: string;
+  buyerName: string;
+  salePrice: number;
+  saleType: SaleType;
+  saleDate: string;
+  brokerId: string | null;
+  salesManagerId: string | null;
+  salesPersonId: string | null;
+}
+
+export interface Notification {
+  id: string;
+  title: string;
+  message: string;
+  read: boolean;
+  createdAt: string;
+}

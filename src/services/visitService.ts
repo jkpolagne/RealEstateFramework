@@ -1,6 +1,9 @@
 import type { VisitRequest } from '../types';
 import { visitRequests } from '../mocks/visitRequests';
+import { properties } from '../mocks/properties';
+import { consultantLinks } from '../mocks/consultantLinks';
 import { delay } from '../lib/delay';
+import { recordNotification } from './notificationService';
 
 export interface ScheduleVisitInput {
   propertyId: string;
@@ -11,6 +14,11 @@ export interface ScheduleVisitInput {
   preferredTime: string;
   notes: string;
   sourceLinkId: string | null;
+}
+
+export async function getVisitRequests(): Promise<VisitRequest[]> {
+  await delay();
+  return visitRequests;
 }
 
 /** Simulates creating/finding a Client record plus a Visit_Request record (status "Pending"). */
@@ -32,5 +40,23 @@ export async function submitVisitRequest(input: ScheduleVisitInput): Promise<Vis
   };
 
   visitRequests.push(visitRequest);
+
+  const property = properties.find((p) => p.id === input.propertyId);
+  const sourceLink = input.sourceLinkId ? consultantLinks.find((l) => l.id === input.sourceLinkId) : null;
+  const propertyLabel = property?.name ?? 'a property';
+  const sourceSuffix = sourceLink ? ` (via ${sourceLink.consultantName})` : '';
+  recordNotification('New visit request', `${input.fullName} requested a visit for ${propertyLabel}${sourceSuffix}.`);
+
+  return visitRequest;
+}
+
+export async function updateVisitRequestStatus(
+  id: string,
+  status: 'Approved' | 'Declined',
+): Promise<VisitRequest> {
+  await delay(300);
+  const visitRequest = visitRequests.find((v) => v.id === id);
+  if (!visitRequest) throw new Error('Visit request not found');
+  visitRequest.status = status;
   return visitRequest;
 }

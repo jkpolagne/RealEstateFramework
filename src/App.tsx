@@ -6,10 +6,15 @@ import { BrowsePage } from './pages/property-seeker/BrowsePage';
 import { ComparisonPage } from './pages/property-seeker/ComparisonPage';
 import { PropertyDetailsPage } from './pages/property-seeker/PropertyDetailsPage';
 import { CompanyAdminLayout } from './pages/company-admin/CompanyAdminLayout';
+import { DashboardPage } from './pages/company-admin/DashboardPage';
 import { ManageDevelopersPage } from './pages/company-admin/ManageDevelopersPage';
 import { ManagePropertiesPage } from './pages/company-admin/ManagePropertiesPage';
 import { LoanQuotationPage } from './pages/company-admin/LoanQuotationPage';
-import { ComingSoonPage } from './pages/company-admin/ComingSoonPage';
+import { VisitSchedulesPage } from './pages/company-admin/VisitSchedulesPage';
+import { ConsultantAccountsPage } from './pages/company-admin/ConsultantAccountsPage';
+import { ConsultantLinksPage } from './pages/company-admin/ConsultantLinksPage';
+import { SalesReportPage } from './pages/company-admin/SalesReportPage';
+import { NotificationsPage } from './pages/company-admin/NotificationsPage';
 import { SuperAdminLayout } from './pages/super-admin/SuperAdminLayout';
 import { CompaniesPage } from './pages/super-admin/CompaniesPage';
 import { CreateCompanyPage } from './pages/super-admin/CreateCompanyPage';
@@ -28,16 +33,16 @@ function App() {
           </Route>
 
           <Route path="/company-admin" element={<CompanyAdminLayout />}>
-            <Route index element={<Navigate to="developers" replace />} />
-            <Route path="dashboard" element={<ComingSoonPage title="Dashboard" />} />
+            <Route index element={<Navigate to="dashboard" replace />} />
+            <Route path="dashboard" element={<DashboardPage />} />
             <Route path="properties" element={<ManagePropertiesPage />} />
             <Route path="developers" element={<ManageDevelopersPage />} />
             <Route path="loan-quotation" element={<LoanQuotationPage />} />
-            <Route path="visit-schedules" element={<ComingSoonPage title="Visit Schedules" />} />
-            <Route path="consultant-accounts" element={<ComingSoonPage title="Consultant Accounts" />} />
-            <Route path="consultant-links" element={<ComingSoonPage title="Consultant Links" />} />
-            <Route path="sales-report" element={<ComingSoonPage title="Sales Report" />} />
-            <Route path="notifications" element={<ComingSoonPage title="Notifications" />} />
+            <Route path="visit-schedules" element={<VisitSchedulesPage />} />
+            <Route path="consultant-accounts" element={<ConsultantAccountsPage />} />
+            <Route path="consultant-links" element={<ConsultantLinksPage />} />
+            <Route path="sales-report" element={<SalesReportPage />} />
+            <Route path="notifications" element={<NotificationsPage />} />
           </Route>
 
           <Route path="/super-admin" element={<SuperAdminLayout />}>

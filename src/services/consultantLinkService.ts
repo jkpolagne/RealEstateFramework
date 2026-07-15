@@ -6,3 +6,13 @@ export async function getConsultantLinkBySlug(slug: string): Promise<ConsultantL
   await delay(150);
   return consultantLinks.find((link) => link.slug === slug && link.status === 'active');
 }
+
+export async function getConsultantLinkById(id: string): Promise<ConsultantLink | undefined> {
+  await delay(150);
+  return consultantLinks.find((link) => link.id === id);
+}
+
+export async function getConsultantLinks(): Promise<ConsultantLink[]> {
+  await delay();
+  return consultantLinks;
+}
