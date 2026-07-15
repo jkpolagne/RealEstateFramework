@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import type { ConsultantAccount } from '../../types';
 import { getConsultantAccounts, getConsultantAccountsByRole } from '../../services/consultantAccountService';
 import { sendAnnouncementToRecipients, sendBrokerAnnouncement } from '../../services/consultantNotificationService';
 import { notifyCompanyAdmin } from '../../services/notificationService';
@@ -6,6 +7,7 @@ import { useConsultantSession } from '../../context/ConsultantSessionContext';
 import { SendNotificationForm } from '../../components/shared/SendNotificationForm';
 
 type BrokerScope = 'team' | 'sales-managers' | 'company-admin';
+type ManagerScope = 'team' | 'broker';
 
 const BROKER_SCOPE_LABEL: Record<BrokerScope, string> = {
   team: 'your entire team (all Sales Managers and Sales Persons)',
@@ -13,13 +15,15 @@ const BROKER_SCOPE_LABEL: Record<BrokerScope, string> = {
   'company-admin': 'the Company Admin (e.g. new property or quotation needed)',
 };
 
-/** Recipient scope differs by role: a Broker can choose who to reach, a Sales Manager messages their own Sales Persons, and a Sales Person messages their own Sales Manager. */
+/** Recipient scope differs by role: a Broker or Sales Manager can choose who to reach, a Sales Person messages their own Sales Manager. */
 export function SendNotificationPage() {
   const { consultantId, role } = useConsultantSession();
   const [recipientLabel, setRecipientLabel] = useState('your team');
   const [recipientIds, setRecipientIds] = useState<string[]>([]);
+  const [broker, setBroker] = useState<ConsultantAccount | null>(null);
   const [resolving, setResolving] = useState(role !== 'Broker');
   const [brokerScope, setBrokerScope] = useState<BrokerScope>('team');
+  const [managerScope, setManagerScope] = useState<ManagerScope>('team');
 
   useEffect(() => {
     if (role === 'Broker') {
@@ -28,10 +32,13 @@ export function SendNotificationPage() {
     }
     setResolving(true);
     if (role === 'Sales Manager') {
-      getConsultantAccountsByRole('Sales Person').then((salesPersons) => {
-        const mine = salesPersons.filter((sp) => sp.assignedUnderId === consultantId);
-        setRecipientIds(mine.map((sp) => sp.id));
+      getConsultantAccounts().then((all) => {
+        const salesPersons = all.filter((c) => c.role === 'Sales Person' && c.assignedUnderId === consultantId);
+        const me = all.find((c) => c.id === consultantId);
+        const myBroker = me?.assignedUnderId ? all.find((c) => c.id === me.assignedUnderId) : undefined;
+        setRecipientIds(salesPersons.map((sp) => sp.id));
         setRecipientLabel('your Sales Persons');
+        setBroker(myBroker ?? null);
         setResolving(false);
       });
       return;
@@ -63,12 +70,23 @@ export function SendNotificationPage() {
       await sendBrokerAnnouncement(title, message);
       return;
     }
+    if (role === 'Sales Manager' && managerScope === 'broker') {
+      await sendAnnouncementToRecipients(broker ? [broker.id] : [], title, message);
+      return;
+    }
     await sendAnnouncementToRecipients(recipientIds, title, message);
   }
 
+  const managerScopeLabel =
+    managerScope === 'broker'
+      ? broker
+        ? `${broker.firstName} ${broker.lastName} (your Broker)`
+        : 'your Broker'
+      : recipientLabel;
+
   return (
     <SendNotificationForm
-      recipientLabel={role === 'Broker' ? BROKER_SCOPE_LABEL[brokerScope] : recipientLabel}
+      recipientLabel={role === 'Broker' ? BROKER_SCOPE_LABEL[brokerScope] : role === 'Sales Manager' ? managerScopeLabel : recipientLabel}
       onSend={handleSend}
       resolvingRecipients={resolving}
       scopeControl={
@@ -79,6 +97,14 @@ export function SendNotificationPage() {
               <option value="team">Entire team (Sales Managers + Sales Persons)</option>
               <option value="sales-managers">Sales Managers only</option>
               <option value="company-admin">Company Admin</option>
+            </select>
+          </div>
+        ) : role === 'Sales Manager' ? (
+          <div className="field">
+            <label htmlFor="notif-scope">Send to</label>
+            <select id="notif-scope" value={managerScope} onChange={(e) => setManagerScope(e.target.value as ManagerScope)}>
+              <option value="team">My Sales Persons</option>
+              <option value="broker">My Broker</option>
             </select>
           </div>
         ) : undefined

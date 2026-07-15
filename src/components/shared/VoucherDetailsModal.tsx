@@ -129,6 +129,12 @@ export function VoucherDetailsModal({ voucher, onClose }: VoucherDetailsModalPro
                 <span>Signed date</span>
                 <span>{voucher.signedDate ?? '—'}</span>
               </div>
+              {voucher.signatureDataUrl && (
+                <div className="voucher-receipt-signature">
+                  <span className="text-muted">E-signature</span>
+                  <img src={voucher.signatureDataUrl} alt="Consultant signature" />
+                </div>
+              )}
               <div className="voucher-receipt-row">
                 <span>Released date</span>
                 <span>{voucher.releasedDate ?? '—'}</span>

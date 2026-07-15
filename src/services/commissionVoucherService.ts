@@ -121,6 +121,7 @@ export async function createCommissionVoucher(input: CreateVoucherInput): Promis
     // A Broker-role voucher has no separate signer — the Broker who creates it is also its recipient,
     // and there's no "Sign Voucher" page in the Broker portal for them to sign their own commission.
     receivedByConsultant: role === 'Broker' ? consultantName : null,
+    signatureDataUrl: null,
     status: role === 'Broker' ? 'Signed' : 'Pending Signature',
     signedDate: role === 'Broker' ? new Date().toISOString().slice(0, 10) : null,
     releasedDate: null,
@@ -146,12 +147,13 @@ export async function createCommissionVoucher(input: CreateVoucherInput): Promis
   return voucher;
 }
 
-export async function signVoucher(id: string, consultantName: string): Promise<CommissionVoucher> {
+export async function signVoucher(id: string, consultantName: string, signatureDataUrl: string): Promise<CommissionVoucher> {
   await delay(300);
   const voucher = commissionVouchers.find((v) => v.id === id);
   if (!voucher) throw new Error('Voucher not found');
   voucher.status = 'Signed';
   voucher.receivedByConsultant = consultantName;
+  voucher.signatureDataUrl = signatureDataUrl;
   voucher.signedDate = new Date().toISOString().slice(0, 10);
   return voucher;
 }

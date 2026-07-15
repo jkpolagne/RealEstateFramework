@@ -4,6 +4,15 @@ import { getClientsBySalesManager, getClientsBySalesPerson, recordPayment } from
 import { useConsultantSession } from '../../context/ConsultantSessionContext';
 import { formatPHP } from '../../lib/format';
 
+function readAsDataUrl(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
 export function UploadPaymentProofPage() {
   const { consultantId, role } = useConsultantSession();
   const [clients, setClients] = useState<Client[]>([]);
@@ -11,9 +20,15 @@ export function UploadPaymentProofPage() {
   const [amount, setAmount] = useState('');
   const [paymentDate, setPaymentDate] = useState(new Date().toISOString().slice(0, 10));
   const [method, setMethod] = useState('Bank transfer');
-  const [referenceNumber, setReferenceNumber] = useState('');
+  const [proofImage, setProofImage] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [result, setResult] = useState<{ progress: number; newTranchesDue: number } | null>(null);
+
+  async function handleProofFile(fileList: FileList | null) {
+    const file = fileList?.[0];
+    if (!file) return;
+    setProofImage(await readAsDataUrl(file));
+  }
 
   useEffect(() => {
     const fetchClients = role === 'Sales Manager' ? getClientsBySalesManager(consultantId) : getClientsBySalesPerson(consultantId);
@@ -27,20 +42,20 @@ export function UploadPaymentProofPage() {
 
   function resetForm() {
     setAmount('');
-    setReferenceNumber('');
+    setProofImage(null);
     setResult(null);
   }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!selectedClient) return;
+    if (!selectedClient || !proofImage) return;
     setSubmitting(true);
     const { client, newTranchesDue } = await recordPayment({
       clientId: selectedClient.id,
       amount: Number(amount),
       paymentDate,
       method,
-      referenceNumber,
+      proofImage,
       uploadedById: consultantId,
     });
     setSubmitting(false);
@@ -119,29 +134,39 @@ export function UploadPaymentProofPage() {
           </div>
         </div>
 
-        <div className="field-row">
-          <div className="field">
-            <label htmlFor="payment-method">Method</label>
-            <select id="payment-method" value={method} onChange={(e) => setMethod(e.target.value)}>
-              <option>Bank transfer</option>
-              <option>Cash</option>
-              <option>Check</option>
-              <option>Online payment</option>
-            </select>
-          </div>
-          <div className="field">
-            <label htmlFor="payment-reference">Reference number</label>
-            <input
-              id="payment-reference"
-              type="text"
-              required
-              value={referenceNumber}
-              onChange={(e) => setReferenceNumber(e.target.value)}
-            />
-          </div>
+        <div className="field">
+          <label htmlFor="payment-method">Method</label>
+          <select id="payment-method" value={method} onChange={(e) => setMethod(e.target.value)}>
+            <option>Bank transfer</option>
+            <option>Cash</option>
+            <option>Check</option>
+            <option>Online payment</option>
+          </select>
         </div>
 
-        <button type="submit" className="btn btn-primary btn-block" disabled={submitting || !selectedClient}>
+        <div className="field">
+          <label htmlFor="payment-proof">Proof of payment</label>
+          <input
+            id="payment-proof"
+            type="file"
+            accept="image/*"
+            required={!proofImage}
+            onChange={(e) => handleProofFile(e.target.files)}
+          />
+          <p className="text-muted field-help">Upload a photo or scan of the receipt / deposit slip the buyer gave you.</p>
+          {proofImage && (
+            <div className="image-upload-preview">
+              <div className="image-upload-thumb">
+                <img src={proofImage} alt="Proof of payment" />
+                <button type="button" className="image-upload-remove" onClick={() => setProofImage(null)} aria-label="Remove proof">
+                  ✕
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+
+        <button type="submit" className="btn btn-primary btn-block" disabled={submitting || !selectedClient || !proofImage}>
           {submitting ? 'Saving...' : 'Save Payment'}
         </button>
       </form>

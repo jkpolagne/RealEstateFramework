@@ -27,7 +27,6 @@ import { ConsultantLayout } from './pages/consultant/ConsultantLayout';
 import { DashboardPage as ConsultantDashboardPage } from './pages/consultant/DashboardPage';
 import { MonitorClientsPage } from './pages/consultant/MonitorClientsPage';
 import { PerformancePage } from './pages/consultant/PerformancePage';
-import { ConsultantLinkPage } from './pages/consultant/ConsultantLinkPage';
 import { MyCommissionPage } from './pages/consultant/MyCommissionPage';
 import { SignVoucherPage } from './pages/consultant/SignVoucherPage';
 import { UploadPaymentProofPage } from './pages/consultant/UploadPaymentProofPage';
@@ -64,7 +63,6 @@ const SALES_MANAGER_NAV = [
   { to: 'performance', label: 'Performance' },
   { to: 'send-notification', label: 'Send Notification' },
   { to: 'monitor-clients', label: 'Monitor Clients' },
-  { to: 'consultant-link', label: 'Consultant Link' },
   { to: 'my-commission', label: 'My Commission' },
   { to: 'sign-voucher', label: 'Sign Voucher' },
   { to: 'upload-payment-proof', label: 'Upload Payment Proof' },
@@ -76,7 +74,6 @@ const SALES_PERSON_NAV = [
   { to: 'performance', label: 'Performance' },
   { to: 'send-notification', label: 'Send Notification' },
   { to: 'monitor-clients', label: 'Monitor Clients' },
-  { to: 'consultant-link', label: 'Consultant Link' },
   { to: 'my-commission', label: 'My Commission' },
   { to: 'sign-voucher', label: 'Sign Voucher' },
   { to: 'upload-payment-proof', label: 'Upload Payment Proof' },
@@ -138,7 +135,6 @@ function App() {
             <Route path="performance" element={<PerformancePage />} />
             <Route path="send-notification" element={<SendNotificationPage />} />
             <Route path="monitor-clients" element={<MonitorClientsPage />} />
-            <Route path="consultant-link" element={<ConsultantLinkPage />} />
             <Route path="my-commission" element={<MyCommissionPage />} />
             <Route path="sign-voucher" element={<SignVoucherPage />} />
             <Route path="upload-payment-proof" element={<UploadPaymentProofPage />} />
@@ -154,7 +150,6 @@ function App() {
             <Route path="performance" element={<PerformancePage />} />
             <Route path="send-notification" element={<SendNotificationPage />} />
             <Route path="monitor-clients" element={<MonitorClientsPage />} />
-            <Route path="consultant-link" element={<ConsultantLinkPage />} />
             <Route path="my-commission" element={<MyCommissionPage />} />
             <Route path="sign-voucher" element={<SignVoucherPage />} />
             <Route path="upload-payment-proof" element={<UploadPaymentProofPage />} />

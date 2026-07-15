@@ -7,6 +7,7 @@ import { useConsultantSession } from '../../context/ConsultantSessionContext';
 import { StatTile } from '../../components/shared/StatTile';
 import { formatPHP } from '../../lib/format';
 import { releasedTranchesForClient } from '../../lib/tranche';
+import { ConsultantLinkCard } from '../../components/consultant/ConsultantLinkCard';
 
 export function DashboardPage() {
   const { consultantId, role, displayName } = useConsultantSession();
@@ -55,6 +56,8 @@ export function DashboardPage() {
         <StatTile label="Vouchers to sign" value={String(vouchersToSign)} />
         <StatTile label="My released commission" value={formatPHP(releasedCommission)} />
       </div>
+
+      <ConsultantLinkCard consultantId={consultantId} />
 
       <div className="card admin-dashboard-panel">
         <div className="admin-dashboard-panel-header">

@@ -1,10 +1,13 @@
 import { useEffect, useState } from 'react';
 import type { ConsultantLink } from '../../types';
 import { getConsultantLinkByConsultantId } from '../../services/consultantLinkService';
-import { useConsultantSession } from '../../context/ConsultantSessionContext';
 
-export function ConsultantLinkPage() {
-  const { consultantId } = useConsultantSession();
+interface ConsultantLinkCardProps {
+  consultantId: string;
+}
+
+/** Quick-access referral link, shown on the Dashboard so a Sales Manager/Sales Person doesn't need a dedicated nav item for it. */
+export function ConsultantLinkCard({ consultantId }: ConsultantLinkCardProps) {
   const [link, setLink] = useState<ConsultantLink | null>(null);
   const [loading, setLoading] = useState(true);
   const [copied, setCopied] = useState(false);
@@ -29,28 +32,18 @@ export function ConsultantLinkPage() {
     }
   }
 
-  return (
-    <div>
-      <div className="admin-page-header">
-        <h1>Consultant Link</h1>
-        <p className="text-muted">
-          Share this link with prospects — visits and sales through it are tagged as Referred and credited to you.
-        </p>
-      </div>
+  if (loading || !link) return null;
 
-      {loading ? (
-        <p className="text-muted">Loading your link...</p>
-      ) : !link ? (
-        <p className="text-muted">No consultant link found for your account.</p>
-      ) : (
-        <div className="card consultant-link-card">
-          <p className="text-muted">Your referral link</p>
-          <p className="consultant-link-url">{fullLink}</p>
-          <button type="button" className="btn btn-primary" onClick={handleCopy}>
-            {copied ? 'Copied!' : 'Copy Link'}
-          </button>
-        </div>
-      )}
+  return (
+    <div className="card admin-dashboard-panel consultant-link-panel">
+      <div className="admin-dashboard-panel-header">
+        <h3>Your referral link</h3>
+      </div>
+      <p className="text-muted">Share this link with prospects — visits and sales through it are tagged as Referred and credited to you.</p>
+      <p className="consultant-link-url">{fullLink}</p>
+      <button type="button" className="btn btn-primary btn-sm" onClick={handleCopy}>
+        {copied ? 'Copied!' : 'Copy Link'}
+      </button>
     </div>
   );
 }

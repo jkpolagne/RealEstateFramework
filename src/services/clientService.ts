@@ -42,7 +42,7 @@ export interface RecordPaymentInput {
   amount: number;
   paymentDate: string;
   method: string;
-  referenceNumber: string;
+  proofImage: string;
   uploadedById: string;
 }
 

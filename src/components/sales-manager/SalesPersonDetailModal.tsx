@@ -4,6 +4,7 @@ import { getClientsBySalesPerson } from '../../services/clientService';
 import { getVouchersByConsultant } from '../../services/commissionVoucherService';
 import { getAllPropertiesForAdmin } from '../../services/propertyService';
 import { formatPHP } from '../../lib/format';
+import { StatTile } from '../shared/StatTile';
 
 interface SalesPersonDetailModalProps {
   salesPerson: ConsultantAccount;
@@ -37,6 +38,10 @@ export function SalesPersonDetailModal({ salesPerson, onClose }: SalesPersonDeta
       .reduce((sum, v) => sum + v.netCommissionReceivable, 0);
   }
 
+  const totalSales = clients.reduce((sum, c) => sum + c.salePrice, 0);
+  const vouchersPendingSignature = vouchers.filter((v) => v.status === 'Pending Signature').length;
+  const commissionReleased = vouchers.filter((v) => v.status === 'Released').reduce((sum, v) => sum + v.netCommissionReceivable, 0);
+
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal" onClick={(e) => e.stopPropagation()}>
@@ -51,31 +56,41 @@ export function SalesPersonDetailModal({ salesPerson, onClose }: SalesPersonDeta
         <div className="modal-body scroll-y">
           {loading ? (
             <p className="text-muted">Loading clients...</p>
-          ) : clients.length === 0 ? (
-            <p className="text-muted">No clients assigned yet.</p>
           ) : (
-            <table className="admin-table admin-table-plain">
-              <thead>
-                <tr>
-                  <th>Client</th>
-                  <th>Property</th>
-                  <th>Status</th>
-                  <th>Added</th>
-                  <th>Commission Earned</th>
-                </tr>
-              </thead>
-              <tbody>
-                {clients.map((client) => (
-                  <tr key={client.id}>
-                    <td className="admin-table-name">{client.fullName}</td>
-                    <td>{propertyName(client.propertyId)}</td>
-                    <td>{client.paymentProgressPercent === 100 ? 'Fully paid' : `${client.paymentProgressPercent}% paid`}</td>
-                    <td>{client.addedDate}</td>
-                    <td>{formatPHP(commissionEarned(client.id))}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            <>
+              <div className="stat-tile-row">
+                <StatTile label="Total clients" value={String(clients.length)} accent />
+                <StatTile label="Total sales" value={formatPHP(totalSales)} />
+                <StatTile label="Vouchers pending signature" value={String(vouchersPendingSignature)} />
+                <StatTile label="Commission released" value={formatPHP(commissionReleased)} />
+              </div>
+              {clients.length === 0 ? (
+                <p className="text-muted">No clients assigned yet.</p>
+              ) : (
+                <table className="admin-table admin-table-plain">
+                  <thead>
+                    <tr>
+                      <th>Client</th>
+                      <th>Property</th>
+                      <th>Status</th>
+                      <th>Added</th>
+                      <th>Commission Earned</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {clients.map((client) => (
+                      <tr key={client.id}>
+                        <td className="admin-table-name">{client.fullName}</td>
+                        <td>{propertyName(client.propertyId)}</td>
+                        <td>{client.paymentProgressPercent === 100 ? 'Fully paid' : `${client.paymentProgressPercent}% paid`}</td>
+                        <td>{client.addedDate}</td>
+                        <td>{formatPHP(commissionEarned(client.id))}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+            </>
           )}
         </div>
       </div>

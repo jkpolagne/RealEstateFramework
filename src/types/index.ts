@@ -277,7 +277,8 @@ export interface PaymentRecord {
   amount: number;
   paymentDate: string;
   method: string;
-  referenceNumber: string;
+  /** Data URL of the uploaded proof-of-payment image (receipt/deposit slip). */
+  proofImage: string;
   uploadedById: string;
   createdAt: string;
 }
@@ -324,6 +325,8 @@ export interface CommissionVoucher {
   netCommissionReceivable: number;
   approvedByBroker: string | null;
   receivedByConsultant: string | null;
+  /** Data URL of the consultant's drawn e-signature, captured when they sign. */
+  signatureDataUrl: string | null;
   status: VoucherStatus;
   signedDate: string | null;
   releasedDate: string | null;

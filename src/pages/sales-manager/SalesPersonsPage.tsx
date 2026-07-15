@@ -7,6 +7,12 @@ import { useConsultantSession } from '../../context/ConsultantSessionContext';
 import { formatPHP } from '../../lib/format';
 import { SalesPersonDetailModal } from '../../components/sales-manager/SalesPersonDetailModal';
 
+function performanceBadge(totalSales: number): { label: string; className: string } {
+  if (totalSales >= 2_000_000) return { label: 'Top Performer', className: 'badge-available' };
+  if (totalSales >= 500_000) return { label: 'Steady', className: 'badge-reserved' };
+  return { label: 'Needs Support', className: 'badge-sold' };
+}
+
 export function SalesPersonsPage() {
   const { consultantId } = useConsultantSession();
   const [salesPersons, setSalesPersons] = useState<ConsultantAccount[]>([]);
@@ -38,7 +44,7 @@ export function SalesPersonsPage() {
     <div>
       <div className="admin-page-header">
         <h1>Sales Persons</h1>
-        <p className="text-muted">The Sales Persons on your team.</p>
+        <p className="text-muted">Monitor the clients and sales performance of every Sales Person on your team.</p>
       </div>
 
       {loading ? (
@@ -57,6 +63,7 @@ export function SalesPersonsPage() {
                 <th>Clients</th>
                 <th>Status</th>
                 <th>Sales Amount</th>
+                <th>Performance</th>
                 <th>Link</th>
                 <th></th>
               </tr>
@@ -66,6 +73,7 @@ export function SalesPersonsPage() {
                 const spClients = clientsFor(sp.id);
                 const totalSales = spClients.reduce((sum, c) => sum + c.salePrice, 0);
                 const link = linkFor(sp.id);
+                const badge = performanceBadge(totalSales);
                 return (
                   <tr key={sp.id}>
                     <td>{i + 1}</td>
@@ -81,6 +89,9 @@ export function SalesPersonsPage() {
                       </span>
                     </td>
                     <td>{formatPHP(totalSales)}</td>
+                    <td>
+                      <span className={`badge ${badge.className}`}>{badge.label}</span>
+                    </td>
                     <td className="admin-table-link">{link ? `?ref=${link.slug}` : '—'}</td>
                     <td>
                       <button type="button" className="btn btn-outline btn-sm" onClick={() => setViewing(sp)}>

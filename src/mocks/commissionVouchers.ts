@@ -68,6 +68,7 @@ function buildReleasedVoucher(input: BuildVoucherInput): CommissionVoucher {
     grossCommissionReleasedFrom: `${developer.name} — Tranche ${releaseNumber} of ${client.totalTranches}`,
     approvedByBroker: BROKER_NAME,
     receivedByConsultant: name,
+    signatureDataUrl: null,
     status: 'Released',
     signedDate,
     releasedDate: disbursedDate,

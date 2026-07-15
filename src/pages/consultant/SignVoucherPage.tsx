@@ -3,6 +3,7 @@ import type { CommissionVoucher } from '../../types';
 import { disputeVoucher, getVouchersByConsultant, signVoucher } from '../../services/commissionVoucherService';
 import { useConsultantSession } from '../../context/ConsultantSessionContext';
 import { formatPHP } from '../../lib/format';
+import { SignaturePad } from '../../components/shared/SignaturePad';
 
 export function SignVoucherPage() {
   const { consultantId, displayName } = useConsultantSession();
@@ -11,6 +12,8 @@ export function SignVoucherPage() {
   const [actingId, setActingId] = useState<string | null>(null);
   const [disputingId, setDisputingId] = useState<string | null>(null);
   const [disputeReason, setDisputeReason] = useState('');
+  const [signingId, setSigningId] = useState<string | null>(null);
+  const [signatureDataUrl, setSignatureDataUrl] = useState<string | null>(null);
 
   function refresh() {
     setLoading(true);
@@ -22,9 +25,12 @@ export function SignVoucherPage() {
 
   useEffect(refresh, [consultantId]);
 
-  async function handleSign(id: string) {
+  async function handleConfirmSign(id: string) {
+    if (!signatureDataUrl) return;
     setActingId(id);
-    await signVoucher(id, displayName);
+    await signVoucher(id, displayName, signatureDataUrl);
+    setSigningId(null);
+    setSignatureDataUrl(null);
     refresh();
     setActingId(null);
   }
@@ -105,13 +111,40 @@ export function SignVoucherPage() {
                     </button>
                   </div>
                 </div>
+              ) : signingId === voucher.id ? (
+                <div className="voucher-dispute-form">
+                  <SignaturePad onChange={setSignatureDataUrl} />
+                  <div className="admin-row-actions">
+                    <button
+                      type="button"
+                      className="btn btn-primary btn-sm"
+                      disabled={actingId === voucher.id || !signatureDataUrl}
+                      onClick={() => handleConfirmSign(voucher.id)}
+                    >
+                      {actingId === voucher.id ? 'Signing...' : 'Confirm & Sign'}
+                    </button>
+                    <button
+                      type="button"
+                      className="btn btn-ghost btn-sm"
+                      onClick={() => {
+                        setSigningId(null);
+                        setSignatureDataUrl(null);
+                      }}
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </div>
               ) : (
                 <div className="admin-row-actions">
                   <button
                     type="button"
                     className="btn btn-primary btn-sm"
                     disabled={actingId === voucher.id}
-                    onClick={() => handleSign(voucher.id)}
+                    onClick={() => {
+                      setSigningId(voucher.id);
+                      setSignatureDataUrl(null);
+                    }}
                   >
                     Accept &amp; Sign
                   </button>
