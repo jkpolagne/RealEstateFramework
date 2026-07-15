@@ -12,6 +12,7 @@ export function BrowsePage() {
   const [loading, setLoading] = useState(true);
   const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
   const [closePopupSignal, setClosePopupSignal] = useState(0);
+  const [filterOpen, setFilterOpen] = useState(true);
 
   useEffect(() => {
     let cancelled = false;
@@ -43,7 +44,13 @@ export function BrowsePage() {
 
   return (
     <div className="browse-view">
-      <FilterPanel filters={filters} onChange={setFilters} resultCount={properties.length} />
+      {filterOpen ? (
+        <FilterPanel filters={filters} onChange={setFilters} resultCount={properties.length} onClose={() => setFilterOpen(false)} />
+      ) : (
+        <button type="button" className="filter-reopen-btn" onClick={() => setFilterOpen(true)}>
+          <span aria-hidden="true">☰</span> Search &amp; Filter
+        </button>
+      )}
 
       <div className="browse-center">
         <div className="browse-map">
@@ -53,15 +60,18 @@ export function BrowsePage() {
             onMarkerClick={handleMarkerSelect}
             closePopupSignal={closePopupSignal}
           />
+
+          {selectedProperty && <PropertyDetailPanel property={selectedProperty} onClose={handleClosePanel} />}
         </div>
 
         <div className="browse-list">
+          <p className="browse-list-heading">Available Properties ({properties.length})</p>
           {loading ? (
             <p className="text-muted">Loading properties...</p>
           ) : properties.length === 0 ? (
             <p className="text-muted">No properties match your filters.</p>
           ) : (
-            <div className="property-grid">
+            <div className="property-strip">
               {properties.map((property) => (
                 <PropertyCard
                   key={property.id}
@@ -74,10 +84,6 @@ export function BrowsePage() {
           )}
         </div>
       </div>
-
-      {selectedProperty && (
-        <PropertyDetailPanel property={selectedProperty} onClose={handleClosePanel} />
-      )}
     </div>
   );
 }

@@ -347,18 +347,18 @@ textarea {
   min-height: 0;
 }
 
-/* Browse view */
+/* Browse view — fixed-height app shell: sidebar + map fill the viewport, property strip scrolls horizontally */
 .browse-view {
   display: flex;
-  align-items: flex-start;
-  gap: 1.25rem;
-  padding: 1.25rem 1.5rem;
-  flex: 1;
+  align-items: stretch;
+  gap: 1rem;
+  padding: 1rem;
+  height: calc(100vh - 68px);
   min-height: 0;
 }
 
 .browse-view .filter-panel {
-  flex: 0 0 260px;
+  flex: 0 0 240px;
 }
 
 .browse-view .browse-center {
@@ -366,52 +366,154 @@ textarea {
   min-width: 0;
 }
 
+/* Filter panel */
 .filter-panel {
-  padding: 1.1rem;
+  padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 0.9rem;
-  position: sticky;
-  top: 1.25rem;
+  min-height: 0;
+  overflow: hidden;
 }
 
-.filter-panel h3 {
-  font-size: 1rem;
+.filter-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.9rem 1rem;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
 }
 
-.field-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0.6rem;
+.filter-panel-title {
+  font-weight: 700;
+  font-size: 0.88rem;
+  color: var(--navy);
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.filter-panel-close {
+  padding: 0.15rem 0.4rem;
+}
+
+.filter-panel-body {
+  padding: 0.9rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  flex: 1;
+  min-height: 0;
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.filter-group-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--text-muted);
+}
+
+.filter-chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.filter-chip {
+  padding: 0.35rem 0.65rem;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--white);
+  color: var(--text);
+  font-size: 0.78rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.filter-chip:hover {
+  border-color: var(--gold);
+}
+
+.filter-chip-active {
+  background: var(--navy);
+  border-color: var(--navy);
+  color: var(--white);
 }
 
 .filter-result-count {
-  font-size: 0.8rem;
+  font-size: 0.78rem;
   border-top: 1px solid var(--border);
-  padding-top: 0.7rem;
+  padding: 0.6rem 1rem;
+  flex-shrink: 0;
 }
 
+.filter-reopen-btn {
+  flex: 0 0 auto;
+  align-self: flex-start;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0.65rem 0.9rem;
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: var(--navy);
+  box-shadow: 0 2px 8px rgba(19, 33, 53, 0.08);
+  height: fit-content;
+}
+
+.filter-reopen-btn:hover {
+  border-color: var(--gold);
+}
+
+/* Center column: map + horizontal property strip */
 .browse-center {
   display: flex;
   flex-direction: column;
-  gap: 1.25rem;
+  gap: 0.9rem;
   min-width: 0;
+  min-height: 0;
 }
 
 .browse-map {
-  height: 440px;
+  position: relative;
+  flex: 1;
+  min-height: 0;
   border-radius: 12px;
   overflow: hidden;
   border: 1px solid var(--border);
 }
 
-.property-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-  gap: 1rem;
+.browse-list {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
 }
 
-/* Property card */
+.browse-list-heading {
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: var(--navy);
+}
+
+.property-strip {
+  display: flex;
+  gap: 0.9rem;
+  overflow-x: auto;
+  padding-bottom: 0.3rem;
+}
+
+/* Property card (compact, used in the horizontal strip) */
 .property-card {
   text-align: left;
   background: var(--white);
@@ -421,6 +523,7 @@ textarea {
   padding: 0;
   display: flex;
   flex-direction: column;
+  flex: 0 0 200px;
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
@@ -434,46 +537,71 @@ textarea {
   box-shadow: 0 0 0 2px rgba(184, 134, 59, 0.25);
 }
 
+.property-card-image-wrap {
+  position: relative;
+}
+
 .property-card-image {
   width: 100%;
-  height: 140px;
+  height: 100px;
   object-fit: cover;
+  display: block;
+}
+
+.property-card-status {
+  position: absolute;
+  top: 0.5rem;
+  left: 0.5rem;
 }
 
 .property-card-body {
-  padding: 0.85rem 0.9rem 1rem;
+  padding: 0.65rem 0.75rem 0.8rem;
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
-}
-
-.property-card-top {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+  gap: 0.2rem;
 }
 
 .property-card-name {
   font-weight: 700;
-  font-size: 0.95rem;
+  font-size: 0.88rem;
 }
 
 .property-card-location {
-  font-size: 0.8rem;
+  font-size: 0.76rem;
+}
+
+.property-card-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 0.3rem;
+}
+
+.property-card-details {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--navy);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 0.2rem 0.55rem;
 }
 
 .price-lg {
   font-size: 1.4rem;
 }
 
-/* Detail panel (~30% width) */
+/* Detail panel — floats over the map, top-right */
 .detail-panel {
+  position: absolute;
+  top: 0.9rem;
+  right: 0.9rem;
   width: 100%;
-  max-width: 340px;
-  position: sticky;
-  top: 1.25rem;
+  max-width: 300px;
+  max-height: calc(100% - 1.8rem);
   padding: 0;
-  overflow: hidden;
+  overflow-y: auto;
+  box-shadow: 0 8px 28px rgba(19, 33, 53, 0.22);
+  z-index: 500;
 }
 
 .detail-panel-close {
@@ -919,7 +1047,16 @@ textarea {
 
 @media (max-width: 960px) {
   .browse-view {
-    grid-template-columns: 1fr;
+    flex-direction: column;
+    height: auto;
+    overflow: visible;
+  }
+  .browse-view .filter-panel {
+    flex: 0 0 auto;
+    max-height: 320px;
+  }
+  .browse-center {
+    min-height: 480px;
   }
   .details-content {
     grid-template-columns: 1fr;
