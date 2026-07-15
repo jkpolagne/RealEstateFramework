@@ -1,11 +1,7 @@
 import { Link } from 'react-router-dom';
 import { useCompare } from '../../context/CompareContext';
 
-interface TopNavProps {
-  onOpenLoanCalculator: () => void;
-}
-
-export function TopNav({ onOpenLoanCalculator }: TopNavProps) {
+export function TopNav() {
   const { comparedIds } = useCompare();
 
   return (
@@ -27,9 +23,9 @@ export function TopNav({ onOpenLoanCalculator }: TopNavProps) {
           <Link to="/company-admin" className="btn btn-outline-invert btn-sm">
             Staff Portal
           </Link>
-          <button type="button" className="btn btn-primary" onClick={onOpenLoanCalculator}>
+          <Link to="/loan-computation" className="btn btn-primary">
             Loan Calculator
-          </button>
+          </Link>
         </div>
       </div>
     </header>

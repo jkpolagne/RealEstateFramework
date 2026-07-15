@@ -5,6 +5,7 @@ import { PropertySeekerLayout } from './pages/property-seeker/PropertySeekerLayo
 import { BrowsePage } from './pages/property-seeker/BrowsePage';
 import { ComparisonPage } from './pages/property-seeker/ComparisonPage';
 import { PropertyDetailsPage } from './pages/property-seeker/PropertyDetailsPage';
+import { LoanComputationPage } from './pages/property-seeker/LoanComputationPage';
 
 import { CompanyAdminLayout } from './pages/company-admin/CompanyAdminLayout';
 import { DashboardPage as CompanyAdminDashboardPage } from './pages/company-admin/DashboardPage';
@@ -101,6 +102,7 @@ function App() {
             <Route path="/" element={<BrowsePage />} />
             <Route path="/compare" element={<ComparisonPage />} />
             <Route path="/property/:id" element={<PropertyDetailsPage />} />
+            <Route path="/loan-computation" element={<LoanComputationPage />} />
           </Route>
 
           <Route path="/company-admin" element={<CompanyAdminLayout />}>

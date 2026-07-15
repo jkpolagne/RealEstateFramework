@@ -1,7 +1,7 @@
 import type { AddLoanQuotationInput, LoanQuotation, Property } from '../types';
 import { loanQuotations } from '../mocks/loanQuotations';
 import { delay } from '../lib/delay';
-import { amortize } from '../lib/amortize';
+import { amortize, amortizeInverse } from '../lib/amortize';
 
 export async function getLoanQuotationsByDeveloper(developerId: string): Promise<LoanQuotation[]> {
   await delay();
@@ -88,28 +88,45 @@ export function suggestMonthlyAmortization(propertyPrice: number, downPaymentAmo
   return Math.round(amortize(principal, interestRate, termMonths));
 }
 
-export interface ManualLoanResult {
+export interface BudgetLoanInput {
   monthlyBudget: number;
-  maxAffordablePrice: number;
-  matchingProperties: Property[];
+  downPaymentPercent: number;
+  termMonths: number;
+  interestRate: number;
 }
 
-const ASSUMED_ANNUAL_RATE = 6.5;
-const ASSUMED_TERM_MONTHS = 180;
-const ASSUMED_DOWN_PAYMENT_PERCENT = 20;
+export interface BudgetMatchingProperty {
+  property: Property;
+  estimatedMonthlyPayment: number;
+}
 
-/** Purely client-side estimate — no persisted data, matches the "Manual" tab of the loan calculator. */
-export async function computeManualLoan(totalBudget: number, allProperties: Property[]): Promise<ManualLoanResult> {
-  await delay(200);
+export interface BudgetLoanResult {
+  monthlyBudget: number;
+  maxLoanAmount: number;
+  maxPropertyPrice: number;
+  matchingProperties: BudgetMatchingProperty[];
+}
 
-  const financedAmount = totalBudget * (1 - ASSUMED_DOWN_PAYMENT_PERCENT / 100);
-  const monthlyBudget = Math.round(amortize(financedAmount, ASSUMED_ANNUAL_RATE, ASSUMED_TERM_MONTHS));
+/** Purely client-side estimate — no persisted data, backs the "Manual Computation" tab of the loan calculator. */
+export async function computeBudgetLoan(input: BudgetLoanInput, allProperties: Property[]): Promise<BudgetLoanResult> {
+  await delay(300);
+  const { monthlyBudget, downPaymentPercent, termMonths, interestRate } = input;
 
-  const maxAffordablePrice = totalBudget;
+  const maxLoanAmount = amortizeInverse(monthlyBudget, interestRate, termMonths);
+  const maxPropertyPrice = maxLoanAmount / (1 - downPaymentPercent / 100);
 
   const matchingProperties = allProperties
-    .filter((p) => p.status === 'available' && p.price <= maxAffordablePrice)
-    .sort((a, b) => b.price - a.price);
+    .filter((p) => p.status === 'available' && p.price <= maxPropertyPrice)
+    .sort((a, b) => b.price - a.price)
+    .map((property) => ({
+      property,
+      estimatedMonthlyPayment: Math.round(amortize(property.price * (1 - downPaymentPercent / 100), interestRate, termMonths)),
+    }));
 
-  return { monthlyBudget, maxAffordablePrice, matchingProperties };
+  return {
+    monthlyBudget,
+    maxLoanAmount: Math.round(maxLoanAmount),
+    maxPropertyPrice: Math.round(maxPropertyPrice),
+    matchingProperties,
+  };
 }

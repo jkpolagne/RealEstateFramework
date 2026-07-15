@@ -513,6 +513,13 @@ textarea {
   padding-bottom: 0.3rem;
 }
 
+/* Property grid — wrapping grid of the same compact card, used outside the browse strip (Similar Properties, etc.) */
+.property-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
 /* Property card (compact, used in the horizontal strip) */
 .property-card {
   text-align: left;
@@ -803,6 +810,411 @@ textarea {
 .quotation-breakdown dd {
   margin: 0;
   font-weight: 600;
+}
+
+/* Loan Computation page */
+.loanpage {
+  padding: 1.5rem 0 3rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+}
+
+.loanpage-back {
+  color: var(--text-muted);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.88rem;
+  width: fit-content;
+}
+
+.loanpage-back:hover {
+  color: var(--navy);
+}
+
+.loanpage-header h1 {
+  font-size: 1.5rem;
+  margin-bottom: 0.2rem;
+}
+
+.segmented-tabs {
+  display: inline-flex;
+  gap: 0.3rem;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0.3rem;
+  width: fit-content;
+}
+
+.segmented-tab {
+  background: none;
+  border: none;
+  border-radius: 7px;
+  padding: 0.55rem 1rem;
+  font-weight: 600;
+  font-size: 0.88rem;
+  color: var(--text-muted);
+}
+
+.segmented-tab-active {
+  background: var(--white);
+  color: var(--navy);
+  box-shadow: 0 1px 4px rgba(19, 33, 53, 0.12);
+}
+
+.loanpage-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+}
+
+.loanpage-form-card {
+  padding: 1.3rem 1.4rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+
+.loanpage-form-card h3 {
+  margin-bottom: -0.5rem;
+}
+
+.loanpage-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+
+.loanpage-terms-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.7rem;
+}
+
+.loanpage-unit-input {
+  display: flex;
+  align-items: center;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.loanpage-unit-input input {
+  border: none;
+  flex: 1;
+  min-width: 0;
+}
+
+.loanpage-unit-input span {
+  padding: 0 0.7rem;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  background: var(--bg);
+  align-self: stretch;
+  display: flex;
+  align-items: center;
+}
+
+.loanpage-suggested h3 {
+  margin-bottom: 0.7rem;
+}
+
+.loanpage-property-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 0.9rem;
+}
+
+.loanpage-property-row {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0.7rem;
+}
+
+.loanpage-property-row img {
+  width: 88px;
+  height: 76px;
+  object-fit: cover;
+  border-radius: 8px;
+  flex-shrink: 0;
+}
+
+.loanpage-property-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.loanpage-property-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.loanpage-property-name {
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.loanpage-property-meta {
+  font-size: 0.76rem;
+}
+
+.loanpage-property-payment {
+  font-size: 0.76rem;
+  color: var(--success);
+}
+
+/* Fixed Quotation tab */
+.loanpage-banner-success {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.7rem;
+  background: var(--success-bg);
+  border-radius: 10px;
+  padding: 0.8rem 1rem;
+}
+
+.loanpage-banner-icon {
+  color: var(--success);
+  font-weight: 700;
+}
+
+.loanpage-banner-title {
+  color: var(--success);
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.loanpage-property-summary {
+  display: flex;
+  gap: 1rem;
+  padding: 1rem;
+}
+
+.loanpage-property-summary img {
+  width: 160px;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 10px;
+  flex-shrink: 0;
+}
+
+.loanpage-property-summary-body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.loanpage-property-summary-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.loanpage-mini-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+  gap: 0.6rem;
+  margin-top: 0.3rem;
+}
+
+.loanpage-mini-stats div {
+  background: var(--bg);
+  border-radius: 8px;
+  padding: 0.5rem 0.6rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.loanpage-mini-stats span {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.loanpage-mini-stats strong {
+  font-size: 0.88rem;
+  color: var(--navy);
+}
+
+.loanpage-quotation-card {
+  padding: 0;
+  overflow: hidden;
+}
+
+.loanpage-quotation-header {
+  background: var(--navy);
+  color: var(--white);
+  padding: 1.1rem 1.4rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.loanpage-quotation-header h3 {
+  color: var(--white);
+  margin-bottom: 0.15rem;
+}
+
+.loanpage-quotation-header p {
+  color: #c9cedb;
+  font-size: 0.85rem;
+}
+
+.loanpage-rate-badge {
+  flex-shrink: 0;
+}
+
+.loanpage-quotation-body {
+  padding: 1.3rem 1.4rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+}
+
+.loanpage-quote-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.7rem;
+}
+
+.loanpage-quote-stat {
+  background: var(--bg);
+  border-radius: 10px;
+  padding: 0.7rem 0.8rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.loanpage-quote-stat span {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.loanpage-quote-stat strong {
+  font-size: 1.05rem;
+  color: var(--navy);
+}
+
+.loanpage-breakdown-title {
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--text-muted);
+}
+
+.loanpage-breakdown {
+  display: flex;
+  flex-direction: column;
+}
+
+.loanpage-breakdown-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.55rem 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.88rem;
+}
+
+.loanpage-breakdown-row:last-child {
+  border-bottom: none;
+}
+
+.loanpage-breakdown-row-strong {
+  background: var(--bg);
+  padding: 0.6rem 0.7rem;
+  border-radius: 8px;
+  border-bottom: none;
+  font-weight: 700;
+}
+
+.loanpage-ratio {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.loanpage-ratio-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--navy);
+}
+
+.loanpage-ratio-bar {
+  height: 10px;
+  border-radius: 999px;
+  background: rgba(184, 134, 59, 0.3);
+  overflow: hidden;
+}
+
+.loanpage-ratio-bar-fill {
+  height: 100%;
+  background: var(--navy);
+  border-radius: 999px;
+}
+
+.loanpage-ratio-legend {
+  display: flex;
+  gap: 1.2rem;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.loanpage-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: 0.35rem;
+}
+
+.loanpage-dot-principal {
+  background: var(--navy);
+}
+
+.loanpage-dot-interest {
+  background: var(--gold);
+}
+
+.loanpage-notes {
+  background: var(--bg);
+  border-left: 3px solid var(--gold);
+  border-radius: 8px;
+  padding: 0.8rem 1rem;
+}
+
+.loanpage-notes-title {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--gold-dark);
+  margin-bottom: 0.2rem;
+}
+
+.loanpage-disclaimer {
+  font-size: 0.78rem;
 }
 
 .visit-confirmation {
@@ -1652,6 +2064,24 @@ textarea {
 
 .stat-tile-value-accent {
   color: var(--gold-dark);
+}
+
+.stat-tile-hint {
+  font-size: 0.75rem;
+}
+
+.stat-tile-fill {
+  background: var(--navy);
+  border-color: var(--navy);
+}
+
+.stat-tile-fill .stat-tile-label,
+.stat-tile-fill .stat-tile-hint {
+  color: #c9cedb;
+}
+
+.stat-tile-fill .stat-tile-value {
+  color: var(--white);
 }
 
 /* Dashboard / report panel layout */
