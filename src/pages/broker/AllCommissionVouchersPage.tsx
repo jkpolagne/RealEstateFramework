@@ -3,6 +3,7 @@ import type { CommissionVoucher, VoucherStatus } from '../../types';
 import { getCommissionVouchers } from '../../services/commissionVoucherService';
 import { formatPHP } from '../../lib/format';
 import { VoucherDetailsModal } from '../../components/shared/VoucherDetailsModal';
+import { useConsultantSession } from '../../context/ConsultantSessionContext';
 
 type StatusFilter = 'all' | VoucherStatus;
 
@@ -14,6 +15,7 @@ function statusBadgeClass(status: VoucherStatus): string {
 }
 
 export function AllCommissionVouchersPage() {
+  const { companyId } = useConsultantSession();
   const [vouchers, setVouchers] = useState<CommissionVoucher[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
@@ -21,11 +23,11 @@ export function AllCommissionVouchersPage() {
   const [viewingVoucher, setViewingVoucher] = useState<CommissionVoucher | null>(null);
 
   useEffect(() => {
-    getCommissionVouchers().then((result) => {
+    getCommissionVouchers(companyId).then((result) => {
       setVouchers([...result].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()));
       setLoading(false);
     });
-  }, []);
+  }, [companyId]);
 
   const filtered = vouchers.filter((v) => {
     if (statusFilter !== 'all' && v.status !== statusFilter) return false;

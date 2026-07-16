@@ -4,6 +4,7 @@ import { developers } from '../mocks/developers';
 import { clients } from '../mocks/clients';
 import { delay } from '../lib/delay';
 import { placeholderImage } from '../lib/placeholderImage';
+import { persistAll } from '../lib/persist';
 
 /** Public-facing listing — sold units aren't marketed to new seekers. */
 export async function getProperties(filters?: PropertyFilters): Promise<Property[]> {
@@ -60,10 +61,10 @@ export async function getAvailableProperties(): Promise<Property[]> {
   return properties.filter((p) => p.status !== 'sold');
 }
 
-/** Company Admin sees every property regardless of status. */
-export async function getAllPropertiesForAdmin(): Promise<Property[]> {
+/** Company Admin sees every property in their own company regardless of status. */
+export async function getAllPropertiesForAdmin(companyId: string): Promise<Property[]> {
   await delay();
-  return properties;
+  return properties.filter((p) => p.companyId === companyId);
 }
 
 export async function addProperty(input: AddPropertyInput): Promise<Property> {
@@ -76,6 +77,7 @@ export async function addProperty(input: AddPropertyInput): Promise<Property> {
 
   const property: Property = {
     id: `prop-${Date.now()}`,
+    companyId: input.companyId,
     name: input.name,
     developerId: input.developerId,
     developerName: developer?.name ?? 'Unknown Developer',
@@ -94,8 +96,11 @@ export async function addProperty(input: AddPropertyInput): Promise<Property> {
     amenities: input.amenities,
     heroImage: images[0],
     gallery: images.slice(1),
+    groundFloorPlan: input.groundFloorPlan,
+    secondFloorPlan: input.secondFloorPlan,
   };
   properties.push(property);
+  persistAll();
   return property;
 }
 
@@ -125,7 +130,10 @@ export async function updateProperty(id: string, input: AddPropertyInput): Promi
     amenities: input.amenities,
     heroImage: images[0],
     gallery: images.slice(1),
+    groundFloorPlan: input.groundFloorPlan,
+    secondFloorPlan: input.secondFloorPlan,
   });
+  persistAll();
   return property;
 }
 
@@ -139,4 +147,5 @@ export async function deleteProperty(id: string): Promise<void> {
   }
   const index = properties.findIndex((p) => p.id === id);
   if (index !== -1) properties.splice(index, 1);
+  persistAll();
 }

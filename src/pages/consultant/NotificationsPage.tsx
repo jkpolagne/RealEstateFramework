@@ -12,19 +12,19 @@ function formatTimestamp(iso: string): string {
 }
 
 export function NotificationsPage() {
-  const { consultantId } = useConsultantSession();
+  const { consultantId, companyId } = useConsultantSession();
   const [notifications, setNotifications] = useState<ConsultantNotification[]>([]);
   const [loading, setLoading] = useState(true);
 
   function refresh() {
     setLoading(true);
-    getNotificationsForConsultant(consultantId).then((result) => {
+    getNotificationsForConsultant(consultantId, companyId).then((result) => {
       setNotifications(result);
       setLoading(false);
     });
   }
 
-  useEffect(refresh, [consultantId]);
+  useEffect(refresh, [consultantId, companyId]);
 
   async function handleMarkRead(id: string) {
     await markConsultantNotificationRead(id);
@@ -32,7 +32,7 @@ export function NotificationsPage() {
   }
 
   async function handleMarkAllRead() {
-    await markAllConsultantNotificationsRead(consultantId);
+    await markAllConsultantNotificationsRead(consultantId, companyId);
     refresh();
   }
 

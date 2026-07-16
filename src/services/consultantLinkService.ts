@@ -12,9 +12,9 @@ export async function getConsultantLinkById(id: string): Promise<ConsultantLink 
   return consultantLinks.find((link) => link.id === id);
 }
 
-export async function getConsultantLinks(): Promise<ConsultantLink[]> {
+export async function getConsultantLinks(companyId: string): Promise<ConsultantLink[]> {
   await delay();
-  return consultantLinks;
+  return consultantLinks.filter((link) => link.companyId === companyId);
 }
 
 export async function getConsultantLinkByConsultantId(consultantId: string): Promise<ConsultantLink | undefined> {

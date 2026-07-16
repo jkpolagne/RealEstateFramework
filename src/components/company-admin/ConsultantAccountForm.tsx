@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import type { AddConsultantAccountInput, ConsultantAccount, ConsultantRole } from '../../types';
 import { addConsultantAccount, getConsultantAccountsByRole, updateConsultantAccount } from '../../services/consultantAccountService';
+import { useAuth } from '../../context/AuthContext';
 
 interface ConsultantAccountFormProps {
   account?: ConsultantAccount;
@@ -11,6 +12,8 @@ interface ConsultantAccountFormProps {
 const ROLES: ConsultantRole[] = ['Broker', 'Sales Manager', 'Sales Person'];
 
 export function ConsultantAccountForm({ account, onClose, onSaved }: ConsultantAccountFormProps) {
+  const { session } = useAuth();
+  const companyId = session!.companyId!;
   const isEdit = Boolean(account);
   const [firstName, setFirstName] = useState(account?.firstName ?? '');
   const [middleName, setMiddleName] = useState(account?.middleName ?? '');
@@ -33,7 +36,7 @@ export function ConsultantAccountForm({ account, onClose, onSaved }: ConsultantA
       setAssignedUnderId('');
       return;
     }
-    getConsultantAccountsByRole(supervisorRole).then((result) => {
+    getConsultantAccountsByRole(companyId, supervisorRole).then((result) => {
       setSupervisors(result);
       if (!isEdit) setAssignedUnderId(result.length > 0 ? result[0].id : '');
     });
@@ -57,6 +60,7 @@ export function ConsultantAccountForm({ account, onClose, onSaved }: ConsultantA
         });
       } else {
         const input: AddConsultantAccountInput = {
+          companyId,
           firstName,
           middleName,
           lastName,
@@ -116,7 +120,7 @@ export function ConsultantAccountForm({ account, onClose, onSaved }: ConsultantA
                     id="consultant-contact"
                     type="tel"
                     required
-                    pattern="[0-9+()\-\s]{7,}"
+                    pattern="[0-9+\(\)\- ]{7,}"
                     title="Enter a valid phone number (digits, spaces, +, -, or parentheses)."
                     value={contactNumber}
                     onChange={(e) => setContactNumber(e.target.value)}

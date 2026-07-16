@@ -2,6 +2,7 @@ import type { AddLoanQuotationInput, LoanQuotation, Property } from '../types';
 import { loanQuotations } from '../mocks/loanQuotations';
 import { delay } from '../lib/delay';
 import { amortize, amortizeInverse } from '../lib/amortize';
+import { persistAll } from '../lib/persist';
 
 export async function getLoanQuotationsByDeveloper(developerId: string): Promise<LoanQuotation[]> {
   await delay();
@@ -13,10 +14,10 @@ export async function getLoanQuotationByProperty(propertyId: string): Promise<Lo
   return loanQuotations.find((q) => q.propertyId === propertyId);
 }
 
-/** Company Admin's full quotation list. */
-export async function getAllLoanQuotations(): Promise<LoanQuotation[]> {
+/** Company Admin's full quotation list, scoped to their own company. */
+export async function getAllLoanQuotations(companyId: string): Promise<LoanQuotation[]> {
   await delay();
-  return loanQuotations;
+  return loanQuotations.filter((q) => q.companyId === companyId);
 }
 
 export async function addLoanQuotation(
@@ -29,6 +30,7 @@ export async function addLoanQuotation(
 
   const quotation: LoanQuotation = {
     id: `quote-${Date.now()}`,
+    companyId: property.companyId,
     propertyId: input.propertyId,
     developerId: property.developerId,
     propertyPrice: property.price,
@@ -44,6 +46,7 @@ export async function addLoanQuotation(
     paymentBreakdownDescription: input.paymentBreakdownDescription,
   };
   loanQuotations.push(quotation);
+  persistAll();
   return quotation;
 }
 
@@ -73,6 +76,7 @@ export async function updateLoanQuotation(
     principal,
     paymentBreakdownDescription: input.paymentBreakdownDescription,
   });
+  persistAll();
   return quotation;
 }
 
@@ -80,6 +84,7 @@ export async function deleteLoanQuotation(id: string): Promise<void> {
   await delay(300);
   const index = loanQuotations.findIndex((q) => q.id === id);
   if (index !== -1) loanQuotations.splice(index, 1);
+  persistAll();
 }
 
 /** Suggests a monthly amortization for the Add/Edit Quotation form, using the same formula as the seed data. */

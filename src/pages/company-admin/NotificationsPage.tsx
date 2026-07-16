@@ -1,24 +1,27 @@
 import { useEffect, useState } from 'react';
 import type { Notification } from '../../types';
 import { getNotifications, markAllNotificationsRead, markNotificationRead } from '../../services/notificationService';
+import { useAuth } from '../../context/AuthContext';
 
 function formatTimestamp(iso: string): string {
   return new Date(iso).toLocaleString('en-PH', { dateStyle: 'medium', timeStyle: 'short' });
 }
 
 export function NotificationsPage() {
+  const { session } = useAuth();
+  const companyId = session!.companyId!;
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
 
   function refresh() {
     setLoading(true);
-    getNotifications().then((result) => {
+    getNotifications(companyId).then((result) => {
       setNotifications(result);
       setLoading(false);
     });
   }
 
-  useEffect(refresh, []);
+  useEffect(refresh, [companyId]);
 
   async function handleMarkRead(id: string) {
     await markNotificationRead(id);
@@ -26,7 +29,7 @@ export function NotificationsPage() {
   }
 
   async function handleMarkAllRead() {
-    await markAllNotificationsRead();
+    await markAllNotificationsRead(companyId);
     refresh();
   }
 
@@ -36,7 +39,7 @@ export function NotificationsPage() {
     <div>
       <div className="admin-page-header">
         <h1>Notifications</h1>
-        <p className="text-muted">System notifications for Advench Realty.</p>
+        <p className="text-muted">System notifications for {session?.companyName ?? 'your company'}.</p>
       </div>
 
       <div className="admin-toolbar">

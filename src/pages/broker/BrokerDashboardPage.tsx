@@ -6,21 +6,23 @@ import { getClients } from '../../services/clientService';
 import { getCommissionVouchers, computeReleasableTranches } from '../../services/commissionVoucherService';
 import { StatTile } from '../../components/shared/StatTile';
 import { formatPHP } from '../../lib/format';
+import { useConsultantSession } from '../../context/ConsultantSessionContext';
 
 export function BrokerDashboardPage() {
+  const { companyId } = useConsultantSession();
   const [consultants, setConsultants] = useState<ConsultantAccount[]>([]);
   const [clients, setClients] = useState<Client[]>([]);
   const [vouchers, setVouchers] = useState<CommissionVoucher[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    Promise.all([getConsultantAccounts(), getClients(), getCommissionVouchers()]).then(([consultantResult, clientResult, voucherResult]) => {
+    Promise.all([getConsultantAccounts(companyId), getClients(companyId), getCommissionVouchers(companyId)]).then(([consultantResult, clientResult, voucherResult]) => {
       setConsultants(consultantResult);
       setClients(clientResult);
       setVouchers(voucherResult);
       setLoading(false);
     });
-  }, []);
+  }, [companyId]);
 
   const totalSalesManagers = consultants.filter((c) => c.role === 'Sales Manager').length;
   const totalSalesPersons = consultants.filter((c) => c.role === 'Sales Person').length;

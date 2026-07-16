@@ -2,16 +2,18 @@ import type { AddDeveloperInput, Developer } from '../types';
 import { developers } from '../mocks/developers';
 import { properties } from '../mocks/properties';
 import { delay } from '../lib/delay';
+import { persistAll } from '../lib/persist';
 
-export async function getDevelopers(): Promise<Developer[]> {
+/** Omit companyId for the public Property Seeker flow (browses every company's developers); pass it to scope to one company. */
+export async function getDevelopers(companyId?: string): Promise<Developer[]> {
   await delay();
-  return developers.filter((d) => d.status === 'active');
+  return developers.filter((d) => d.status === 'active' && (!companyId || d.companyId === companyId));
 }
 
-/** Company Admin sees every developer regardless of status. */
-export async function getAllDevelopers(): Promise<Developer[]> {
+/** Company Admin / Broker sees every developer for their own company regardless of status. */
+export async function getAllDevelopers(companyId: string): Promise<Developer[]> {
   await delay();
-  return developers;
+  return developers.filter((d) => d.companyId === companyId);
 }
 
 export async function getDeveloperById(id: string): Promise<Developer | undefined> {
@@ -23,6 +25,7 @@ export async function addDeveloper(input: AddDeveloperInput): Promise<Developer>
   await delay(400);
   const developer: Developer = { id: `dev-${Date.now()}`, ...input };
   developers.push(developer);
+  persistAll();
   return developer;
 }
 
@@ -31,6 +34,7 @@ export async function updateDeveloper(id: string, input: AddDeveloperInput): Pro
   const developer = developers.find((d) => d.id === id);
   if (!developer) throw new Error('Developer not found');
   Object.assign(developer, input);
+  persistAll();
   return developer;
 }
 
@@ -44,4 +48,5 @@ export async function deleteDeveloper(id: string): Promise<void> {
   }
   const index = developers.findIndex((d) => d.id === id);
   if (index !== -1) developers.splice(index, 1);
+  persistAll();
 }

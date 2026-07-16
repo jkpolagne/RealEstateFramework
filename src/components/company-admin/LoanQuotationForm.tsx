@@ -3,6 +3,7 @@ import type { AddLoanQuotationInput, LoanQuotation, Property } from '../../types
 import { getAllPropertiesForAdmin } from '../../services/propertyService';
 import { addLoanQuotation, updateLoanQuotation, suggestMonthlyAmortization } from '../../services/loanService';
 import { formatPHP } from '../../lib/format';
+import { useAuth } from '../../context/AuthContext';
 
 interface LoanQuotationFormProps {
   quotation?: LoanQuotation;
@@ -11,6 +12,8 @@ interface LoanQuotationFormProps {
 }
 
 export function LoanQuotationForm({ quotation, onClose, onSaved }: LoanQuotationFormProps) {
+  const { session } = useAuth();
+  const companyId = session!.companyId!;
   const isEdit = Boolean(quotation);
   const [properties, setProperties] = useState<Property[]>([]);
   const [propertyId, setPropertyId] = useState(quotation?.propertyId ?? '');
@@ -25,7 +28,7 @@ export function LoanQuotationForm({ quotation, onClose, onSaved }: LoanQuotation
   const [touchedDownPayment, setTouchedDownPayment] = useState(isEdit);
 
   useEffect(() => {
-    getAllPropertiesForAdmin().then((result) => {
+    getAllPropertiesForAdmin(companyId).then((result) => {
       setProperties(result);
       if (!isEdit && result.length > 0) setPropertyId(result[0].id);
     });

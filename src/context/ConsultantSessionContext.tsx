@@ -3,6 +3,8 @@ import type { ConsultantRole } from '../types';
 
 export interface ConsultantSession {
   consultantId: string;
+  companyId: string;
+  companyName: string;
   role: ConsultantRole;
   displayName: string;
 }

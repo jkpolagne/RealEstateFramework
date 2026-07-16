@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import type { Client, CommissionVoucher } from '../../types';
 import { getClientsBySalesManager, getClientsBySalesPerson } from '../../services/clientService';
-import { getVouchersByConsultant } from '../../services/commissionVoucherService';
+import { getVouchersByConsultant, getCommissionVouchers } from '../../services/commissionVoucherService';
 import { useConsultantSession } from '../../context/ConsultantSessionContext';
 import { StatTile } from '../../components/shared/StatTile';
 import { formatPHP } from '../../lib/format';
@@ -10,22 +10,26 @@ import { releasedTranchesForClient } from '../../lib/tranche';
 import { ConsultantLinkCard } from '../../components/consultant/ConsultantLinkCard';
 
 export function DashboardPage() {
-  const { consultantId, role, displayName } = useConsultantSession();
+  const { consultantId, companyId, role, displayName } = useConsultantSession();
   const isManager = role === 'Sales Manager';
   const basePath = isManager ? '/sales-manager' : '/sales-person';
 
   const [clients, setClients] = useState<Client[]>([]);
   const [vouchers, setVouchers] = useState<CommissionVoucher[]>([]);
+  const [allVouchers, setAllVouchers] = useState<CommissionVoucher[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchClients = isManager ? getClientsBySalesManager(consultantId) : getClientsBySalesPerson(consultantId);
-    Promise.all([fetchClients, getVouchersByConsultant(consultantId)]).then(([clientResult, voucherResult]) => {
-      setClients(clientResult);
-      setVouchers(voucherResult);
-      setLoading(false);
-    });
-  }, [consultantId, isManager]);
+    Promise.all([fetchClients, getVouchersByConsultant(consultantId), getCommissionVouchers(companyId)]).then(
+      ([clientResult, voucherResult, allVoucherResult]) => {
+        setClients(clientResult);
+        setVouchers(voucherResult);
+        setAllVouchers(allVoucherResult);
+        setLoading(false);
+      },
+    );
+  }, [consultantId, companyId, isManager]);
 
   const primaryCount = isManager ? clients.filter((c) => c.salesPersonId === null).length : clients.length;
   const secondaryCount = isManager ? clients.length : clients.filter((c) => c.paymentProgressPercent < 100).length;
@@ -71,7 +75,18 @@ export function DashboardPage() {
         ) : (
           <ul className="admin-activity-list">
             {clients.slice(0, 5).map((client) => {
-              const released = releasedTranchesForClient(client.id, vouchers);
+              if (client.status === 'Pending Setup') {
+                return (
+                  <li key={client.id}>
+                    <div>
+                      <p className="admin-activity-title">{client.fullName}</p>
+                      <p className="text-muted">New lead</p>
+                    </div>
+                    <span className="badge badge-reserved">Pending Setup</span>
+                  </li>
+                );
+              }
+              const released = releasedTranchesForClient(client.id, allVouchers);
               return (
                 <li key={client.id}>
                   <div>
@@ -80,10 +95,10 @@ export function DashboardPage() {
                   </div>
                   <div className="tranche-progress tranche-progress-compact">
                     <span className="text-muted">
-                      Tranche {released} of {client.totalTranches}
+                      Milestone {released} of {client.totalTranches} — {client.paymentProgressPercent}% paid
                     </span>
                     <div className="tranche-bar">
-                      <div className="tranche-bar-fill" style={{ width: `${(released / client.totalTranches) * 100}%` }} />
+                      <div className="tranche-bar-fill" style={{ width: `${client.paymentProgressPercent}%` }} />
                     </div>
                   </div>
                 </li>

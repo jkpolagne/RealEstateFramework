@@ -3,11 +3,14 @@ import type { ConsultantAccount, ConsultantRole } from '../../types';
 import { getConsultantAccounts, deleteConsultantAccount } from '../../services/consultantAccountService';
 import { ConsultantAccountForm } from '../../components/company-admin/ConsultantAccountForm';
 import { ConfirmDialog } from '../../components/shared/ConfirmDialog';
+import { useAuth } from '../../context/AuthContext';
 
 type RoleFilter = 'all' | ConsultantRole;
 type StatusFilter = 'all' | 'active' | 'inactive';
 
 export function ConsultantAccountsPage() {
+  const { session } = useAuth();
+  const companyId = session!.companyId!;
   const [accounts, setAccounts] = useState<ConsultantAccount[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
@@ -21,13 +24,13 @@ export function ConsultantAccountsPage() {
 
   function refresh() {
     setLoading(true);
-    getConsultantAccounts().then((result) => {
+    getConsultantAccounts(companyId).then((result) => {
       setAccounts(result);
       setLoading(false);
     });
   }
 
-  useEffect(refresh, []);
+  useEffect(refresh, [companyId]);
 
   function supervisorName(id: string | null): string {
     if (!id) return '—';

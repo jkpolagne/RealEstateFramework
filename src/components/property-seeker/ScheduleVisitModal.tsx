@@ -10,6 +10,16 @@ interface ScheduleVisitModalProps {
 
 const TODAY = new Date().toISOString().slice(0, 10);
 
+/** Visit hours: 9:00 AM to 5:30 PM, in 30-minute slots, shown in easy 12-hour format. */
+const TIME_SLOTS = Array.from({ length: 18 }, (_, i) => {
+  const totalMinutes = 9 * 60 + i * 30;
+  const hour24 = Math.floor(totalMinutes / 60);
+  const minute = totalMinutes % 60;
+  const period = hour24 < 12 ? 'AM' : 'PM';
+  const hour12 = hour24 % 12 === 0 ? 12 : hour24 % 12;
+  return `${hour12}:${String(minute).padStart(2, '0')} ${period}`;
+});
+
 export function ScheduleVisitModal({ propertyId, propertyName, onClose }: ScheduleVisitModalProps) {
   const { activeLink } = useConsultantLink();
   const [fullName, setFullName] = useState('');
@@ -23,6 +33,7 @@ export function ScheduleVisitModal({ propertyId, propertyName, onClose }: Schedu
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (!activeLink) return;
     setSubmitting(true);
     await submitVisitRequest({
       propertyId,
@@ -32,7 +43,7 @@ export function ScheduleVisitModal({ propertyId, propertyName, onClose }: Schedu
       preferredDate,
       preferredTime,
       notes,
-      sourceLinkId: activeLink?.id ?? null,
+      sourceLinkId: activeLink.id,
     });
     setSubmitting(false);
     setSubmitted(true);
@@ -74,7 +85,7 @@ export function ScheduleVisitModal({ propertyId, propertyName, onClose }: Schedu
                   id="visit-phone"
                   type="tel"
                   required
-                  pattern="[0-9+()\-\s]{7,}"
+                  pattern="[0-9+\(\)\- ]{7,}"
                   title="Enter a valid phone number (digits, spaces, +, -, or parentheses)."
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
@@ -94,20 +105,28 @@ export function ScheduleVisitModal({ propertyId, propertyName, onClose }: Schedu
                 </div>
                 <div className="field">
                   <label htmlFor="visit-time">Preferred time</label>
-                  <input
+                  <select
                     id="visit-time"
-                    type="time"
                     required
                     value={preferredTime}
                     onChange={(e) => setPreferredTime(e.target.value)}
-                  />
+                  >
+                    <option value="" disabled>
+                      Select a time
+                    </option>
+                    {TIME_SLOTS.map((slot) => (
+                      <option key={slot} value={slot}>
+                        {slot}
+                      </option>
+                    ))}
+                  </select>
                 </div>
               </div>
               <div className="field">
                 <label htmlFor="visit-notes">Notes</label>
                 <textarea id="visit-notes" rows={3} value={notes} onChange={(e) => setNotes(e.target.value)} />
               </div>
-              <button type="submit" className="btn btn-primary btn-block" disabled={submitting}>
+              <button type="submit" className="btn btn-primary btn-block" disabled={submitting || !activeLink}>
                 {submitting ? 'Submitting...' : 'Submit Request'}
               </button>
             </form>

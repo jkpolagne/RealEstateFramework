@@ -3,10 +3,13 @@ import type { Developer } from '../../types';
 import { getAllDevelopers, deleteDeveloper } from '../../services/developerService';
 import { DeveloperForm } from '../../components/company-admin/DeveloperForm';
 import { ConfirmDialog } from '../../components/shared/ConfirmDialog';
+import { useAuth } from '../../context/AuthContext';
 
 type StatusFilter = 'all' | 'active' | 'inactive';
 
 export function ManageDevelopersPage() {
+  const { session } = useAuth();
+  const companyId = session!.companyId!;
   const [developers, setDevelopers] = useState<Developer[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
@@ -19,13 +22,13 @@ export function ManageDevelopersPage() {
 
   function refresh() {
     setLoading(true);
-    getAllDevelopers().then((result) => {
+    getAllDevelopers(companyId).then((result) => {
       setDevelopers(result);
       setLoading(false);
     });
   }
 
-  useEffect(refresh, []);
+  useEffect(refresh, [companyId]);
 
   async function handleDelete() {
     if (!deletingDeveloper) return;

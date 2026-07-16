@@ -3,6 +3,8 @@ import type { AddPropertyInput, Developer, Property, PropertyStatus, PropertyTyp
 import { getDevelopers } from '../../services/developerService';
 import { addProperty, updateProperty } from '../../services/propertyService';
 import { ImageUploadField } from './ImageUploadField';
+import { FloorPlanUploadField } from './FloorPlanUploadField';
+import { useAuth } from '../../context/AuthContext';
 
 interface PropertyFormProps {
   property?: Property;
@@ -22,6 +24,8 @@ function parseTags(value: string): string[] {
 }
 
 export function PropertyForm({ property, onClose, onSaved }: PropertyFormProps) {
+  const { session } = useAuth();
+  const companyId = session!.companyId!;
   const isEdit = Boolean(property);
   const [developers, setDevelopers] = useState<Developer[]>([]);
   const [name, setName] = useState(property?.name ?? '');
@@ -42,11 +46,13 @@ export function PropertyForm({ property, onClose, onSaved }: PropertyFormProps) 
   const [features, setFeatures] = useState(property?.features.join(', ') ?? '');
   const [amenities, setAmenities] = useState(property?.amenities.join(', ') ?? '');
   const [images, setImages] = useState<string[]>(property ? [property.heroImage, ...property.gallery] : []);
+  const [groundFloorPlan, setGroundFloorPlan] = useState<string | null>(property?.groundFloorPlan ?? null);
+  const [secondFloorPlan, setSecondFloorPlan] = useState<string | null>(property?.secondFloorPlan ?? null);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    getDevelopers().then((result) => {
+    getDevelopers(companyId).then((result) => {
       setDevelopers(result);
       if (!isEdit && result.length > 0) setDeveloperId(result[0].id);
     });
@@ -58,6 +64,7 @@ export function PropertyForm({ property, onClose, onSaved }: PropertyFormProps) 
     setSubmitting(true);
     setError(null);
     const input: AddPropertyInput = {
+      companyId,
       name,
       developerId,
       type,
@@ -76,6 +83,8 @@ export function PropertyForm({ property, onClose, onSaved }: PropertyFormProps) 
       features: parseTags(features),
       amenities: parseTags(amenities),
       images,
+      groundFloorPlan,
+      secondFloorPlan,
     };
     try {
       if (isEdit && property) {
@@ -228,7 +237,16 @@ export function PropertyForm({ property, onClose, onSaved }: PropertyFormProps) 
                 </div>
                 <div className="field">
                   <label htmlFor="prop-house-model">House model</label>
-                  <input id="prop-house-model" type="text" value={houseModel} onChange={(e) => setHouseModel(e.target.value)} />
+                  <input
+                    id="prop-house-model"
+                    type="text"
+                    placeholder='e.g. "Dana", "Bella", "Adora"'
+                    value={houseModel}
+                    onChange={(e) => setHouseModel(e.target.value)}
+                  />
+                  <p className="text-muted field-help">
+                    The developer's name for this house design (their model/unit type). Leave blank for a Lot Only listing.
+                  </p>
                 </div>
               </div>
               <div className="field">
@@ -280,6 +298,25 @@ export function PropertyForm({ property, onClose, onSaved }: PropertyFormProps) 
             <fieldset className="admin-fieldset">
               <legend>Images</legend>
               <ImageUploadField images={images} onChange={setImages} />
+            </fieldset>
+
+            <fieldset className="admin-fieldset">
+              <legend>Floor Plans</legend>
+              <p className="text-muted field-help">Optional — shown at the bottom of the property's public details page.</p>
+              <div className="field-row">
+                <FloorPlanUploadField
+                  id="prop-floorplan-ground"
+                  label="Ground floor plan"
+                  image={groundFloorPlan}
+                  onChange={setGroundFloorPlan}
+                />
+                <FloorPlanUploadField
+                  id="prop-floorplan-second"
+                  label="Second floor plan"
+                  image={secondFloorPlan}
+                  onChange={setSecondFloorPlan}
+                />
+              </div>
             </fieldset>
 
             {error && <p className="form-error">{error}</p>}

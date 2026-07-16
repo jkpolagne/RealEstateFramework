@@ -7,18 +7,18 @@ import { formatPHP } from '../../lib/format';
 import { RankedList } from '../../components/shared/RankedList';
 
 export function TopSalesPersonPage() {
-  const { consultantId } = useConsultantSession();
+  const { consultantId, companyId } = useConsultantSession();
   const [salesPersons, setSalesPersons] = useState<ConsultantAccount[]>([]);
   const [clients, setClients] = useState<Client[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    Promise.all([getConsultantAccountsByRole('Sales Person'), getClients()]).then(([spResult, clientResult]) => {
+    Promise.all([getConsultantAccountsByRole(companyId, 'Sales Person'), getClients(companyId)]).then(([spResult, clientResult]) => {
       setSalesPersons(spResult.filter((sp) => sp.assignedUnderId === consultantId));
       setClients(clientResult);
       setLoading(false);
     });
-  }, [consultantId]);
+  }, [consultantId, companyId]);
 
   const ranked = salesPersons
     .map((sp) => ({

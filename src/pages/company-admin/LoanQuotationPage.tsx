@@ -5,8 +5,11 @@ import { getAllPropertiesForAdmin } from '../../services/propertyService';
 import { LoanQuotationForm } from '../../components/company-admin/LoanQuotationForm';
 import { ConfirmDialog } from '../../components/shared/ConfirmDialog';
 import { formatPHP } from '../../lib/format';
+import { useAuth } from '../../context/AuthContext';
 
 export function LoanQuotationPage() {
+  const { session } = useAuth();
+  const companyId = session!.companyId!;
   const [quotations, setQuotations] = useState<LoanQuotation[]>([]);
   const [properties, setProperties] = useState<Property[]>([]);
   const [loading, setLoading] = useState(true);
@@ -19,14 +22,14 @@ export function LoanQuotationPage() {
 
   function refresh() {
     setLoading(true);
-    Promise.all([getAllLoanQuotations(), getAllPropertiesForAdmin()]).then(([quotationResult, propertyResult]) => {
+    Promise.all([getAllLoanQuotations(companyId), getAllPropertiesForAdmin(companyId)]).then(([quotationResult, propertyResult]) => {
       setQuotations(quotationResult);
       setProperties(propertyResult);
       setLoading(false);
     });
   }
 
-  useEffect(refresh, []);
+  useEffect(refresh, [companyId]);
 
   function propertyFor(quotation: LoanQuotation): Property | undefined {
     return properties.find((p) => p.id === quotation.propertyId);

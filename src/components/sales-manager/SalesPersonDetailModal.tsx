@@ -5,6 +5,7 @@ import { getVouchersByConsultant } from '../../services/commissionVoucherService
 import { getAllPropertiesForAdmin } from '../../services/propertyService';
 import { formatPHP } from '../../lib/format';
 import { StatTile } from '../shared/StatTile';
+import { useConsultantSession } from '../../context/ConsultantSessionContext';
 
 interface SalesPersonDetailModalProps {
   salesPerson: ConsultantAccount;
@@ -12,13 +13,14 @@ interface SalesPersonDetailModalProps {
 }
 
 export function SalesPersonDetailModal({ salesPerson, onClose }: SalesPersonDetailModalProps) {
+  const { companyId } = useConsultantSession();
   const [clients, setClients] = useState<Client[]>([]);
   const [vouchers, setVouchers] = useState<CommissionVoucher[]>([]);
   const [properties, setProperties] = useState<Property[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    Promise.all([getClientsBySalesPerson(salesPerson.id), getVouchersByConsultant(salesPerson.id), getAllPropertiesForAdmin()]).then(
+    Promise.all([getClientsBySalesPerson(salesPerson.id), getVouchersByConsultant(salesPerson.id), getAllPropertiesForAdmin(companyId)]).then(
       ([clientResult, voucherResult, propertyResult]) => {
         setClients(clientResult);
         setVouchers(voucherResult);
@@ -26,7 +28,7 @@ export function SalesPersonDetailModal({ salesPerson, onClose }: SalesPersonDeta
         setLoading(false);
       },
     );
-  }, [salesPerson.id]);
+  }, [salesPerson.id, companyId]);
 
   function propertyName(propertyId: string): string {
     return properties.find((p) => p.id === propertyId)?.name ?? 'Unknown property';
@@ -82,7 +84,13 @@ export function SalesPersonDetailModal({ salesPerson, onClose }: SalesPersonDeta
                       <tr key={client.id}>
                         <td className="admin-table-name">{client.fullName}</td>
                         <td>{propertyName(client.propertyId)}</td>
-                        <td>{client.paymentProgressPercent === 100 ? 'Fully paid' : `${client.paymentProgressPercent}% paid`}</td>
+                        <td>
+                          {client.status === 'Pending Setup'
+                            ? 'Pending Setup'
+                            : client.paymentProgressPercent === 100
+                              ? 'Fully paid'
+                              : `${client.paymentProgressPercent}% paid`}
+                        </td>
                         <td>{client.addedDate}</td>
                         <td>{formatPHP(commissionEarned(client.id))}</td>
                       </tr>

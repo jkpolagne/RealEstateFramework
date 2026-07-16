@@ -2,6 +2,7 @@ import type { AddCompanyAdminInput, CompanyAdminAccount } from '../types';
 import { companyAdmins } from '../mocks/companyAdmins';
 import { companies } from '../mocks/companies';
 import { delay } from '../lib/delay';
+import { persistAll } from '../lib/persist';
 import { recordSystemLog } from './systemLogService';
 
 export async function getCompanyAdmins(): Promise<CompanyAdminAccount[]> {
@@ -32,5 +33,6 @@ export async function addCompanyAdmin(input: AddCompanyAdminInput): Promise<Comp
     `Company Admin "${admin.name}" was created for ${company?.name ?? 'Unknown Company'}.`,
     input.companyId,
   );
+  persistAll();
   return admin;
 }

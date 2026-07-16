@@ -1,11 +1,14 @@
 import { useEffect, useState } from 'react';
 import type { ConsultantLink } from '../../types';
 import { getConsultantLinks } from '../../services/consultantLinkService';
+import { useAuth } from '../../context/AuthContext';
 
 type RoleFilter = 'all' | 'Sales Manager' | 'Sales Person';
 type StatusFilter = 'all' | 'active' | 'inactive';
 
 export function ConsultantLinksPage() {
+  const { session } = useAuth();
+  const companyId = session!.companyId!;
   const [links, setLinks] = useState<ConsultantLink[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
@@ -14,11 +17,11 @@ export function ConsultantLinksPage() {
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
   useEffect(() => {
-    getConsultantLinks().then((result) => {
+    getConsultantLinks(companyId).then((result) => {
       setLinks(result);
       setLoading(false);
     });
-  }, []);
+  }, [companyId]);
 
   function fullLink(slug: string): string {
     return `${window.location.origin}/?ref=${slug}`;

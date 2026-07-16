@@ -8,6 +8,7 @@ import { StatTile } from '../../components/shared/StatTile';
 import { RankedList } from '../../components/shared/RankedList';
 import { formatPHP } from '../../lib/format';
 import { downloadCsv } from '../../lib/csv';
+import { useAuth } from '../../context/AuthContext';
 
 function isoDate(date: Date): string {
   return date.toISOString().slice(0, 10);
@@ -20,6 +21,8 @@ function defaultFrom(): string {
 }
 
 export function SalesReportPage() {
+  const { session } = useAuth();
+  const companyId = session!.companyId!;
   const [sales, setSales] = useState<Sale[]>([]);
   const [properties, setProperties] = useState<Property[]>([]);
   const [developers, setDevelopers] = useState<Developer[]>([]);
@@ -29,7 +32,7 @@ export function SalesReportPage() {
   const [dateTo, setDateTo] = useState(isoDate(new Date()));
 
   useEffect(() => {
-    Promise.all([getSales(), getAllPropertiesForAdmin(), getAllDevelopers(), getConsultantAccounts()]).then(
+    Promise.all([getSales(), getAllPropertiesForAdmin(companyId), getAllDevelopers(companyId), getConsultantAccounts(companyId)]).then(
       ([saleResult, propertyResult, developerResult, consultantResult]) => {
         setSales(saleResult);
         setProperties(propertyResult);
@@ -38,7 +41,7 @@ export function SalesReportPage() {
         setLoading(false);
       },
     );
-  }, []);
+  }, [companyId]);
 
   const salesInRange = useMemo(
     () => sales.filter((s) => s.saleDate >= dateFrom && s.saleDate <= dateTo),

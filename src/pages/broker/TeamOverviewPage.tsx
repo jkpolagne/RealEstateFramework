@@ -4,8 +4,10 @@ import { getConsultantAccountsByRole } from '../../services/consultantAccountSer
 import { getClients } from '../../services/clientService';
 import { getAllPropertiesForAdmin } from '../../services/propertyService';
 import { formatPHP } from '../../lib/format';
+import { useConsultantSession } from '../../context/ConsultantSessionContext';
 
 export function TeamOverviewPage() {
+  const { companyId } = useConsultantSession();
   const [salesManagers, setSalesManagers] = useState<ConsultantAccount[]>([]);
   const [salesPersons, setSalesPersons] = useState<ConsultantAccount[]>([]);
   const [clients, setClients] = useState<Client[]>([]);
@@ -15,10 +17,10 @@ export function TeamOverviewPage() {
 
   useEffect(() => {
     Promise.all([
-      getConsultantAccountsByRole('Sales Manager'),
-      getConsultantAccountsByRole('Sales Person'),
-      getClients(),
-      getAllPropertiesForAdmin(),
+      getConsultantAccountsByRole(companyId, 'Sales Manager'),
+      getConsultantAccountsByRole(companyId, 'Sales Person'),
+      getClients(companyId),
+      getAllPropertiesForAdmin(companyId),
     ]).then(([smResult, spResult, clientResult, propertyResult]) => {
       setSalesManagers(smResult);
       setSalesPersons(spResult);
@@ -26,7 +28,7 @@ export function TeamOverviewPage() {
       setProperties(propertyResult);
       setLoading(false);
     });
-  }, []);
+  }, [companyId]);
 
   function propertyName(propertyId: string): string {
     return properties.find((p) => p.id === propertyId)?.name ?? 'Unknown property';

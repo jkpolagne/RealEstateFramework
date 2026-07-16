@@ -4,6 +4,7 @@ export type TurnoverStatus = 'Ready for turnover' | 'Under construction';
 
 export interface Developer {
   id: string;
+  companyId: string;
   name: string;
   totalCutPercent: number;
   status: 'active' | 'inactive';
@@ -17,6 +18,7 @@ export interface Developer {
 
 export interface Property {
   id: string;
+  companyId: string;
   name: string;
   developerId: string;
   developerName: string;
@@ -39,10 +41,13 @@ export interface Property {
   amenities: string[];
   heroImage: string;
   gallery: string[];
+  groundFloorPlan: string | null;
+  secondFloorPlan: string | null;
 }
 
 export interface LoanQuotation {
   id: string;
+  companyId: string;
   propertyId: string;
   developerId: string;
   propertyPrice: number;
@@ -60,6 +65,7 @@ export interface LoanQuotation {
 
 export interface ConsultantLink {
   id: string;
+  companyId: string;
   slug: string;
   consultantId: string;
   consultantName: string;
@@ -71,6 +77,7 @@ export interface ConsultantLink {
 
 export interface VisitRequest {
   id: string;
+  companyId: string;
   propertyId: string;
   fullName: string;
   email: string;
@@ -79,7 +86,8 @@ export interface VisitRequest {
   preferredTime: string;
   notes: string;
   status: 'Pending' | 'Approved' | 'Declined';
-  sourceLinkId: string | null;
+  sourceLinkId: string;
+  clientId: string;
   createdAt: string;
 }
 
@@ -95,6 +103,7 @@ export interface PropertyFilters {
 }
 
 export interface AddDeveloperInput {
+  companyId: string;
   name: string;
   totalCutPercent: number;
   status: 'active' | 'inactive';
@@ -107,6 +116,7 @@ export interface AddDeveloperInput {
 }
 
 export interface AddPropertyInput {
+  companyId: string;
   name: string;
   developerId: string;
   type: PropertyType;
@@ -126,6 +136,8 @@ export interface AddPropertyInput {
   amenities: string[];
   /** Data URLs from client-side file reads — first becomes the hero image. */
   images: string[];
+  groundFloorPlan: string | null;
+  secondFloorPlan: string | null;
 }
 
 export interface AddLoanQuotationInput {
@@ -188,11 +200,13 @@ export type ConsultantRole = 'Broker' | 'Sales Manager' | 'Sales Person';
 
 export interface ConsultantAccount {
   id: string;
+  companyId: string;
   firstName: string;
   middleName: string;
   lastName: string;
   email: string;
   contactNumber: string;
+  password: string;
   role: ConsultantRole;
   /** Broker id for a Sales Manager, Sales Manager id for a Sales Person — null for Broker. */
   assignedUnderId: string | null;
@@ -201,6 +215,7 @@ export interface ConsultantAccount {
 }
 
 export interface AddConsultantAccountInput {
+  companyId: string;
   firstName: string;
   middleName: string;
   lastName: string;
@@ -229,6 +244,7 @@ export interface Sale {
 
 export interface Notification {
   id: string;
+  companyId: string;
   title: string;
   message: string;
   read: boolean;
@@ -248,8 +264,11 @@ export interface ChecklistItem {
   verifiedDate: string | null;
 }
 
+export type ClientStatus = 'Pending Setup' | 'Active';
+
 export interface Client {
   id: string;
+  companyId: string;
   fullName: string;
   email: string;
   phone: string;
@@ -258,8 +277,9 @@ export interface Client {
   developerId: string;
   salePrice: number;
   saleType: SaleType;
-  paymentMethod: PaymentMethod;
-  /** 1 for Cash, 4 for In-House / Bank Financing. */
+  /** Null until the assigned consultant sets up the client (see ClientStatus). */
+  paymentMethod: PaymentMethod | null;
+  /** 1 for Cash, 4 for In-House / Bank Financing. 0 until set up. */
   totalTranches: number;
   brokerId: string;
   salesManagerId: string;
@@ -269,10 +289,13 @@ export interface Client {
   requirementsChecklist: ChecklistItem[];
   lastContactedDate: string | null;
   notes: string;
+  /** Pending Setup: created from a visit request, awaiting payment method/employment status. Active: fully set up and payable. */
+  status: ClientStatus;
 }
 
 export interface PaymentRecord {
   id: string;
+  companyId: string;
   clientId: string;
   amount: number;
   paymentDate: string;
@@ -285,6 +308,7 @@ export interface PaymentRecord {
 
 export interface ConsultantNotification {
   id: string;
+  companyId: string;
   /** A consultantId, or 'all' for a broker-wide announcement. */
   recipientId: string;
   title: string;
@@ -298,6 +322,7 @@ export type VoucherRole = 'Broker' | 'Sales Manager' | 'Sales Person';
 
 export interface CommissionVoucher {
   id: string;
+  companyId: string;
   clientId: string;
   developerId: string;
   developerName: string;

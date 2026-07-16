@@ -3,6 +3,7 @@ import type { ConsultantLink, Property, VisitRequest } from '../../types';
 import { getVisitRequests, updateVisitRequestStatus } from '../../services/visitService';
 import { getAllPropertiesForAdmin } from '../../services/propertyService';
 import { getConsultantLinks } from '../../services/consultantLinkService';
+import { useAuth } from '../../context/AuthContext';
 
 type StatusFilter = 'all' | 'Pending' | 'Approved' | 'Declined';
 
@@ -18,17 +19,19 @@ function statusBadgeClass(status: VisitRequest['status']): string {
 }
 
 export function VisitSchedulesPage() {
+  const { session } = useAuth();
+  const companyId = session!.companyId!;
   const [visitRequests, setVisitRequests] = useState<VisitRequest[]>([]);
   const [properties, setProperties] = useState<Property[]>([]);
   const [consultantLinks, setConsultantLinks] = useState<ConsultantLink[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
-  const [statusFilter, setStatusFilter] = useState<StatusFilter>('Pending');
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
   const [actingId, setActingId] = useState<string | null>(null);
 
   function refresh() {
     setLoading(true);
-    Promise.all([getVisitRequests(), getAllPropertiesForAdmin(), getConsultantLinks()]).then(
+    Promise.all([getVisitRequests(companyId), getAllPropertiesForAdmin(companyId), getConsultantLinks(companyId)]).then(
       ([visitResult, propertyResult, linkResult]) => {
         setVisitRequests([...visitResult].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()));
         setProperties(propertyResult);
@@ -38,7 +41,7 @@ export function VisitSchedulesPage() {
     );
   }
 
-  useEffect(refresh, []);
+  useEffect(refresh, [companyId]);
 
   async function handleAction(id: string, status: 'Approved' | 'Declined') {
     setActingId(id);
@@ -52,9 +55,9 @@ export function VisitSchedulesPage() {
   }
 
   function sourceLabel(visit: VisitRequest): string {
-    if (!visit.sourceLinkId) return 'Direct';
     const link = consultantLinks.find((l) => l.id === visit.sourceLinkId);
-    return link ? `Referred — ${link.consultantName}` : 'Referred';
+    if (!link) return 'Unknown';
+    return link.role === 'Sales Person' ? `Referred — ${link.consultantName}` : `Direct — ${link.consultantName}`;
   }
 
   const filtered = visitRequests.filter((visit) => {
@@ -70,7 +73,7 @@ export function VisitSchedulesPage() {
     <div>
       <div className="admin-page-header">
         <h1>Visit Schedules</h1>
-        <p className="text-muted">Property visit requests submitted through the public site.</p>
+        <p className="text-muted">Property visit requests submitted through the public site — including past history.</p>
       </div>
 
       <div className="admin-toolbar">
@@ -82,10 +85,10 @@ export function VisitSchedulesPage() {
           className="admin-search"
         />
         <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value as StatusFilter)}>
+          <option value="all">All statuses (history)</option>
           <option value="Pending">Pending</option>
           <option value="Approved">Approved</option>
           <option value="Declined">Declined</option>
-          <option value="all">All statuses</option>
         </select>
       </div>
 

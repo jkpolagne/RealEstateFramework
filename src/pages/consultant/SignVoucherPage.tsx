@@ -49,7 +49,7 @@ export function SignVoucherPage() {
     <div>
       <div className="admin-page-header">
         <h1>Sign Voucher</h1>
-        <p className="text-muted">Vouchers sent by the Broker awaiting your signature.</p>
+        <p className="text-muted">Commission vouchers awaiting your signature before they can be released.</p>
       </div>
 
       {loading ? (

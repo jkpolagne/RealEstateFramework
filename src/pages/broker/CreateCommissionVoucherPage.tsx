@@ -12,7 +12,7 @@ import { useConsultantSession } from '../../context/ConsultantSessionContext';
 export function CreateCommissionVoucherPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { displayName: brokerName } = useConsultantSession();
+  const { displayName: brokerName, companyId } = useConsultantSession();
 
   const [releasable, setReleasable] = useState<ReturnType<typeof computeReleasableTranches>>([]);
   const [consultantNames, setConsultantNames] = useState<Record<string, string>>({});
@@ -29,7 +29,7 @@ export function CreateCommissionVoucherPage() {
   const [validationError, setValidationError] = useState<string | null>(null);
 
   useEffect(() => {
-    Promise.all([getClients(), getCommissionVouchers(), getConsultantAccounts(), getAllDevelopers()]).then(
+    Promise.all([getClients(companyId), getCommissionVouchers(companyId), getConsultantAccounts(companyId), getAllDevelopers(companyId)]).then(
       ([clientResult, voucherResult, consultants, developerResult]) => {
       const items = computeReleasableTranches(clientResult, voucherResult);
       setReleasable(items);
@@ -47,7 +47,7 @@ export function CreateCommissionVoucherPage() {
         setSelectedKey(`${first.client.id}|${first.role}|${first.releaseNumber}`);
       }
     });
-  }, [searchParams]);
+  }, [searchParams, companyId]);
 
   const selected = useMemo(() => {
     if (!selectedKey) return null;

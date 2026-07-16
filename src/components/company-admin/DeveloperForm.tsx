@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import type { AddDeveloperInput, Developer } from '../../types';
 import { addDeveloper, updateDeveloper } from '../../services/developerService';
+import { useAuth } from '../../context/AuthContext';
 
 interface DeveloperFormProps {
   developer?: Developer;
@@ -9,6 +10,8 @@ interface DeveloperFormProps {
 }
 
 export function DeveloperForm({ developer, onClose, onSaved }: DeveloperFormProps) {
+  const { session } = useAuth();
+  const companyId = session!.companyId!;
   const isEdit = Boolean(developer);
   const [name, setName] = useState(developer?.name ?? '');
   const [totalCutPercent, setTotalCutPercent] = useState(String(developer?.totalCutPercent ?? 6));
@@ -42,6 +45,7 @@ export function DeveloperForm({ developer, onClose, onSaved }: DeveloperFormProp
 
     setSubmitting(true);
     const input: AddDeveloperInput = {
+      companyId,
       name,
       totalCutPercent: Number(totalCutPercent),
       status,

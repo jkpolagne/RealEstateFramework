@@ -6,11 +6,14 @@ import { PropertyForm } from '../../components/company-admin/PropertyForm';
 import { StatusBadge } from '../../components/property-seeker/StatusBadge';
 import { ConfirmDialog } from '../../components/shared/ConfirmDialog';
 import { formatPHP } from '../../lib/format';
+import { useAuth } from '../../context/AuthContext';
 
 type TypeFilter = 'all' | PropertyType;
 type StatusFilter = 'all' | PropertyStatus;
 
 export function ManagePropertiesPage() {
+  const { session } = useAuth();
+  const companyId = session!.companyId!;
   const [properties, setProperties] = useState<Property[]>([]);
   const [developers, setDevelopers] = useState<Developer[]>([]);
   const [loading, setLoading] = useState(true);
@@ -26,14 +29,14 @@ export function ManagePropertiesPage() {
 
   function refresh() {
     setLoading(true);
-    Promise.all([getAllPropertiesForAdmin(), getAllDevelopers()]).then(([propertyResult, developerResult]) => {
+    Promise.all([getAllPropertiesForAdmin(companyId), getAllDevelopers(companyId)]).then(([propertyResult, developerResult]) => {
       setProperties(propertyResult);
       setDevelopers(developerResult);
       setLoading(false);
     });
   }
 
-  useEffect(refresh, []);
+  useEffect(refresh, [companyId]);
 
   async function handleDelete() {
     if (!deletingProperty) return;

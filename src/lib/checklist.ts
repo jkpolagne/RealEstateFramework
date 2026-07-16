@@ -65,3 +65,28 @@ export function tranchesEligible(paymentProgressPercent: number, totalTranches: 
   const step = 100 / totalTranches;
   return Math.min(totalTranches, Math.floor(paymentProgressPercent / step + 1e-9));
 }
+
+/**
+ * Per spec: Basic requirements unlock the 1st tranche only; every later tranche needs Complete.
+ * Caps how many tranches the document status allows, independent of payment progress.
+ */
+export function checklistTrancheCap(items: ChecklistItem[]): number {
+  const status = checklistPhaseStatus(items);
+  if (status === 'Complete') return Infinity;
+  if (status === 'Basic only') return 1;
+  return 0;
+}
+
+/** The payment % a client needs to reach to unlock their next tranche, or null if every tranche is already unlockable by payment. */
+export function nextTrancheThresholdPercent(releasedCount: number, totalTranches: number): number | null {
+  if (totalTranches <= 0 || releasedCount >= totalTranches) return null;
+  const step = 100 / totalTranches;
+  return Math.round(step * (releasedCount + 1));
+}
+
+/** Which requirements phase (if any) is still needed before the next tranche can be released. Bank Financing only — Cash/In-House have no Complete-phase items. */
+export function nextTranchePhaseNeeded(releasedCount: number, items: ChecklistItem[]): 'Basic' | 'Complete' | null {
+  const cap = checklistTrancheCap(items);
+  if (releasedCount + 1 <= cap) return null;
+  return releasedCount === 0 ? 'Basic' : 'Complete';
+}

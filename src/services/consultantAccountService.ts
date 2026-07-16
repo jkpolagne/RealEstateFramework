@@ -4,15 +4,16 @@ import { consultantLinks } from '../mocks/consultantLinks';
 import { clients } from '../mocks/clients';
 import { delay } from '../lib/delay';
 import { uniqueSlug } from '../lib/slugify';
+import { persistAll } from '../lib/persist';
 
-export async function getConsultantAccounts(): Promise<ConsultantAccount[]> {
+export async function getConsultantAccounts(companyId: string): Promise<ConsultantAccount[]> {
   await delay();
-  return consultantAccounts;
+  return consultantAccounts.filter((c) => c.companyId === companyId);
 }
 
-export async function getConsultantAccountsByRole(role: ConsultantAccount['role']): Promise<ConsultantAccount[]> {
+export async function getConsultantAccountsByRole(companyId: string, role: ConsultantAccount['role']): Promise<ConsultantAccount[]> {
   await delay();
-  return consultantAccounts.filter((c) => c.role === role);
+  return consultantAccounts.filter((c) => c.companyId === companyId && c.role === role);
 }
 
 export async function addConsultantAccount(input: AddConsultantAccountInput): Promise<ConsultantAccount> {
@@ -20,11 +21,13 @@ export async function addConsultantAccount(input: AddConsultantAccountInput): Pr
 
   const account: ConsultantAccount = {
     id: `consultant-${Date.now()}`,
+    companyId: input.companyId,
     firstName: input.firstName,
     middleName: input.middleName,
     lastName: input.lastName,
     email: input.email,
     contactNumber: input.contactNumber,
+    password: input.password,
     role: input.role,
     assignedUnderId: input.role === 'Broker' ? null : input.assignedUnderId,
     status: input.status,
@@ -37,6 +40,7 @@ export async function addConsultantAccount(input: AddConsultantAccountInput): Pr
     const slug = uniqueSlug(fullName, consultantLinks.map((l) => l.slug));
     const link: ConsultantLink = {
       id: `link-${Date.now()}`,
+      companyId: account.companyId,
       slug,
       consultantId: account.id,
       consultantName: fullName,
@@ -48,6 +52,7 @@ export async function addConsultantAccount(input: AddConsultantAccountInput): Pr
     consultantLinks.push(link);
   }
 
+  persistAll();
   return account;
 }
 
@@ -85,6 +90,7 @@ export async function updateConsultantAccount(id: string, input: UpdateConsultan
     link.status = account.status;
   }
 
+  persistAll();
   return account;
 }
 
@@ -109,4 +115,6 @@ export async function deleteConsultantAccount(id: string): Promise<void> {
 
   const linkIndex = consultantLinks.findIndex((l) => l.consultantId === id);
   if (linkIndex !== -1) consultantLinks.splice(linkIndex, 1);
+
+  persistAll();
 }

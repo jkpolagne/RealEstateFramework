@@ -90,7 +90,7 @@ export function CreateCompanyPage() {
               id="company-contact"
               type="tel"
               required
-              pattern="[0-9+()\-\s]{7,}"
+              pattern="[0-9+\(\)\- ]{7,}"
               title="Enter a valid phone number (digits, spaces, +, -, or parentheses)."
               value={contactNumber}
               onChange={(e) => setContactNumber(e.target.value)}

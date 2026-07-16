@@ -4,6 +4,7 @@ import { getConsultantAccounts } from '../../services/consultantAccountService';
 import { getClients } from '../../services/clientService';
 import { formatPHP } from '../../lib/format';
 import { StatTile } from '../../components/shared/StatTile';
+import { useConsultantSession } from '../../context/ConsultantSessionContext';
 
 interface RankedAgent {
   id: string;
@@ -24,17 +25,18 @@ function initials(name: string): string {
 }
 
 export function TopAgentsPage() {
+  const { companyId } = useConsultantSession();
   const [consultants, setConsultants] = useState<ConsultantAccount[]>([]);
   const [clients, setClients] = useState<Client[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    Promise.all([getConsultantAccounts(), getClients()]).then(([consultantResult, clientResult]) => {
+    Promise.all([getConsultantAccounts(companyId), getClients(companyId)]).then(([consultantResult, clientResult]) => {
       setConsultants(consultantResult.filter((c) => c.role !== 'Broker'));
       setClients(clientResult);
       setLoading(false);
     });
-  }, []);
+  }, [companyId]);
 
   const ranked: RankedAgent[] = consultants
     .map((c) => {

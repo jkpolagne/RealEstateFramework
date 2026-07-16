@@ -1386,6 +1386,24 @@ textarea {
   gap: 0.5rem;
 }
 
+.details-floorplan-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.25rem;
+}
+
+.details-floorplan-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.details-floorplan-card img {
+  width: 100%;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+}
+
 .details-tag {
   background: var(--bg);
   border: 1px solid var(--border);
@@ -1537,7 +1555,10 @@ textarea {
 }
 
 .admin-sidebar-link {
-  display: block;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
   padding: 0.65rem 0.75rem;
   border-radius: 8px;
   color: #c9cedb;
@@ -1545,6 +1566,18 @@ textarea {
   font-weight: 500;
   text-decoration: none;
   border-left: 3px solid transparent;
+}
+
+.admin-sidebar-badge {
+  background: var(--gold);
+  color: var(--navy);
+  font-size: 0.72rem;
+  font-weight: 700;
+  line-height: 1;
+  border-radius: 999px;
+  padding: 0.2rem 0.45rem;
+  min-width: 1.1rem;
+  text-align: center;
 }
 
 .admin-sidebar-link:hover {
@@ -1626,6 +1659,15 @@ textarea {
 
 .admin-page-header h1 {
   font-size: 1.4rem;
+  margin-bottom: 0.25rem;
+}
+
+.admin-page-header-secondary {
+  margin-top: 2rem;
+}
+
+.admin-page-header-secondary h2 {
+  font-size: 1.15rem;
   margin-bottom: 0.25rem;
 }
 
@@ -2341,6 +2383,17 @@ textarea {
 
 .notification-item-unread {
   background: var(--success-bg);
+  border-left: 4px solid var(--gold);
+  padding-left: calc(1.2rem - 4px);
+}
+
+.notification-item-unread .notification-item-title {
+  color: var(--gold-dark);
+}
+
+.notification-item-unread .notification-item-body p:not(.notification-item-title) {
+  font-weight: 600;
+  color: var(--navy);
 }
 
 .notification-dot {
@@ -2704,4 +2757,123 @@ textarea {
 }
 .consultant-link-preview:hover {
   color: var(--navy);
+}
+
+.login-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--navy);
+  padding: 1.5rem;
+}
+
+.login-card {
+  width: 100%;
+  max-width: 400px;
+  padding: 2rem;
+}
+
+.login-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  margin-bottom: 1.25rem;
+}
+
+.login-brand-mark {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background: var(--gold);
+  color: var(--navy);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+}
+
+.login-brand strong {
+  color: var(--navy);
+  font-size: 1rem;
+}
+
+.login-title {
+  font-size: 1.3rem;
+  margin-bottom: 0.25rem;
+}
+
+.login-hint {
+  margin-top: 1rem;
+  font-size: 0.82rem;
+  line-height: 1.5;
+}
+
+.login-hint code {
+  background: var(--bg);
+  border-radius: 4px;
+  padding: 0.1rem 0.3rem;
+  font-size: 0.78rem;
+}
+
+.login-back-link {
+  display: inline-block;
+  margin-top: 1.25rem;
+  color: var(--navy);
+  font-size: 0.85rem;
+  text-decoration: none;
+}
+
+.login-back-link:hover {
+  color: var(--gold-dark);
+}
+
+.login-reset-link {
+  display: block;
+  width: 100%;
+  margin-top: 0.75rem;
+}
+
+.payment-proof-layout {
+  display: flex;
+  gap: 1.25rem;
+  align-items: flex-start;
+}
+
+.payment-proof-form-col {
+  flex: 1 1 420px;
+}
+
+.payment-proof-history-col {
+  flex: 1 1 420px;
+}
+
+@media (max-width: 960px) {
+  .payment-proof-layout {
+    flex-direction: column;
+  }
+}
+
+.payment-history-card {
+  margin-top: 0;
+}
+
+.payment-history-card h3 {
+  margin-bottom: 0.9rem;
+}
+
+.payment-history-receipt-link {
+  display: inline-block;
+  width: 56px;
+  height: 42px;
+  border-radius: 6px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+
+.payment-history-receipt-link img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
 }

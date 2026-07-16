@@ -6,8 +6,11 @@ import { getAllDevelopers } from '../../services/developerService';
 import { getConsultantAccounts } from '../../services/consultantAccountService';
 import { getVisitRequests } from '../../services/visitService';
 import { StatTile } from '../../components/shared/StatTile';
+import { useAuth } from '../../context/AuthContext';
 
 export function DashboardPage() {
+  const { session } = useAuth();
+  const companyId = session!.companyId!;
   const [properties, setProperties] = useState<Property[]>([]);
   const [developerCount, setDeveloperCount] = useState(0);
   const [consultants, setConsultants] = useState<ConsultantAccount[]>([]);
@@ -15,7 +18,7 @@ export function DashboardPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    Promise.all([getAllPropertiesForAdmin(), getAllDevelopers(), getConsultantAccounts(), getVisitRequests()]).then(
+    Promise.all([getAllPropertiesForAdmin(companyId), getAllDevelopers(companyId), getConsultantAccounts(companyId), getVisitRequests(companyId)]).then(
       ([propertyResult, developerResult, consultantResult, visitResult]) => {
         setProperties(propertyResult);
         setDeveloperCount(developerResult.length);
@@ -26,7 +29,7 @@ export function DashboardPage() {
         setLoading(false);
       },
     );
-  }, []);
+  }, [companyId]);
 
   const pendingVisits = visitRequests.filter((v) => v.status === 'Pending');
 

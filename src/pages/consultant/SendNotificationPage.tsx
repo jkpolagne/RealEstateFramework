@@ -22,7 +22,7 @@ function accountLabel(account: ConsultantAccount | null, fallback: string): stri
 
 /** Recipient scope differs by role: a Broker, Sales Manager, or Sales Person can all choose who up the chain to reach. */
 export function SendNotificationPage() {
-  const { consultantId, role } = useConsultantSession();
+  const { consultantId, companyId, role } = useConsultantSession();
   const [recipientIds, setRecipientIds] = useState<string[]>([]);
   const [manager, setManager] = useState<ConsultantAccount | null>(null);
   const [broker, setBroker] = useState<ConsultantAccount | null>(null);
@@ -37,7 +37,7 @@ export function SendNotificationPage() {
       return;
     }
     setResolving(true);
-    getConsultantAccounts().then((all) => {
+    getConsultantAccounts(companyId).then((all) => {
       const me = all.find((c) => c.id === consultantId);
       if (role === 'Sales Manager') {
         const salesPersons = all.filter((c) => c.role === 'Sales Person' && c.assignedUnderId === consultantId);
@@ -54,37 +54,38 @@ export function SendNotificationPage() {
       setBroker(myBroker ?? null);
       setResolving(false);
     });
-  }, [consultantId, role]);
+  }, [consultantId, companyId, role]);
 
   async function handleSend(title: string, message: string) {
     if (role === 'Broker') {
       if (brokerScope === 'company-admin') {
-        await notifyCompanyAdmin(title, message);
+        await notifyCompanyAdmin(companyId, title, message);
         return;
       }
       if (brokerScope === 'sales-managers') {
-        const salesManagers = await getConsultantAccountsByRole('Sales Manager');
+        const salesManagers = await getConsultantAccountsByRole(companyId, 'Sales Manager');
         await sendAnnouncementToRecipients(
+          companyId,
           salesManagers.map((sm) => sm.id),
           title,
           message,
         );
         return;
       }
-      await sendBrokerAnnouncement(title, message);
+      await sendBrokerAnnouncement(companyId, title, message);
       return;
     }
     if (role === 'Sales Manager') {
       if (managerScope === 'broker') {
-        await sendAnnouncementToRecipients(broker ? [broker.id] : [], title, message);
+        await sendAnnouncementToRecipients(companyId, broker ? [broker.id] : [], title, message);
         return;
       }
-      await sendAnnouncementToRecipients(recipientIds, title, message);
+      await sendAnnouncementToRecipients(companyId, recipientIds, title, message);
       return;
     }
     // Sales Person
     const target = salesPersonScope === 'broker' ? broker : manager;
-    await sendAnnouncementToRecipients(target ? [target.id] : [], title, message);
+    await sendAnnouncementToRecipients(companyId, target ? [target.id] : [], title, message);
   }
 
   const recipientLabel =

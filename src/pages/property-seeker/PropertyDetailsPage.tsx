@@ -163,14 +163,22 @@ export function PropertyDetailsPage() {
               type="button"
               className="btn btn-primary btn-block"
               onClick={() => setScheduleOpen(true)}
-              disabled={property.status !== 'available'}
+              disabled={property.status !== 'available' || consultantLoading || !activeLink}
             >
               {property.status === 'sold'
                 ? 'Sold — Not Available'
                 : property.status === 'reserved'
                   ? 'Reserved — Not Available'
-                  : 'Schedule Visit'}
+                  : !consultantLoading && !activeLink
+                    ? 'Consultant Link Required'
+                    : 'Schedule Visit'}
             </button>
+            {property.status === 'available' && !consultantLoading && !activeLink && (
+              <p className="text-muted field-help">
+                You need a consultant's referral link to schedule a visit — ask a Broker, Sales Manager, or Sales Person for
+                their link.
+              </p>
+            )}
             <button
               type="button"
               className="btn btn-outline btn-block"
@@ -204,6 +212,26 @@ export function PropertyDetailsPage() {
                 onClick={(p) => navigate(`/property/${p.id}`)}
               />
             ))}
+          </div>
+        </section>
+      )}
+
+      {(property.groundFloorPlan || property.secondFloorPlan) && (
+        <section className="details-section">
+          <h3>Floor Plans</h3>
+          <div className="details-floorplan-grid">
+            {property.groundFloorPlan && (
+              <div className="details-floorplan-card">
+                <p className="text-muted">Ground Floor</p>
+                <img src={property.groundFloorPlan} alt={`${property.name} ground floor plan`} />
+              </div>
+            )}
+            {property.secondFloorPlan && (
+              <div className="details-floorplan-card">
+                <p className="text-muted">Second Floor</p>
+                <img src={property.secondFloorPlan} alt={`${property.name} second floor plan`} />
+              </div>
+            )}
           </div>
         </section>
       )}

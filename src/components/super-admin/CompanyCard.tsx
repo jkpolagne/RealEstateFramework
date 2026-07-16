@@ -4,10 +4,11 @@ interface CompanyCardProps {
   company: Company;
   adminCount: number;
   onToggleStatus: (company: Company) => void;
+  onViewDetails: (company: Company) => void;
   toggling: boolean;
 }
 
-export function CompanyCard({ company, adminCount, onToggleStatus, toggling }: CompanyCardProps) {
+export function CompanyCard({ company, adminCount, onToggleStatus, onViewDetails, toggling }: CompanyCardProps) {
   const isActive = company.status === 'active';
 
   return (
@@ -33,14 +34,19 @@ export function CompanyCard({ company, adminCount, onToggleStatus, toggling }: C
       </dl>
       <p className="text-muted company-card-email">{company.email}</p>
 
-      <button
-        type="button"
-        className={`btn btn-sm btn-block ${isActive ? 'btn-outline' : 'btn-primary'}`}
-        onClick={() => onToggleStatus(company)}
-        disabled={toggling}
-      >
-        {toggling ? 'Updating...' : isActive ? 'Deactivate' : 'Activate'}
-      </button>
+      <div className="admin-row-actions">
+        <button type="button" className="btn btn-outline btn-sm" onClick={() => onViewDetails(company)}>
+          View Details
+        </button>
+        <button
+          type="button"
+          className={`btn btn-sm ${isActive ? 'btn-outline' : 'btn-primary'}`}
+          onClick={() => onToggleStatus(company)}
+          disabled={toggling}
+        >
+          {toggling ? 'Updating...' : isActive ? 'Deactivate' : 'Activate'}
+        </button>
+      </div>
     </div>
   );
 }

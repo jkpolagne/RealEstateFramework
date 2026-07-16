@@ -1,8 +1,16 @@
 import { useEffect, useState } from 'react';
-import type { Client } from '../../types';
-import { getClientsBySalesManager, getClientsBySalesPerson, recordPayment } from '../../services/clientService';
+import type { Client, PaymentRecord } from '../../types';
+import {
+  getClientsBySalesManager,
+  getClientsBySalesPerson,
+  getPaymentRecordsByClient,
+  recordPayment,
+} from '../../services/clientService';
+import { getCommissionVouchers } from '../../services/commissionVoucherService';
 import { useConsultantSession } from '../../context/ConsultantSessionContext';
 import { formatPHP } from '../../lib/format';
+import { nextTrancheThresholdPercent, nextTranchePhaseNeeded } from '../../lib/checklist';
+import { releasedTranchesForClient } from '../../lib/tranche';
 
 function readAsDataUrl(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -16,7 +24,7 @@ function readAsDataUrl(file: File): Promise<string> {
 const TODAY = new Date().toISOString().slice(0, 10);
 
 export function UploadPaymentProofPage() {
-  const { consultantId, role } = useConsultantSession();
+  const { consultantId, companyId, role } = useConsultantSession();
   const [clients, setClients] = useState<Client[]>([]);
   const [clientId, setClientId] = useState('');
   const [amount, setAmount] = useState('');
@@ -25,7 +33,9 @@ export function UploadPaymentProofPage() {
   const [proofImage, setProofImage] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [validationError, setValidationError] = useState<string | null>(null);
-  const [result, setResult] = useState<{ progress: number; newTranchesDue: number } | null>(null);
+  const [result, setResult] = useState<{ progress: number; newTranchesDue: number; voucherHeldForRequirements: boolean } | null>(null);
+  const [history, setHistory] = useState<PaymentRecord[]>([]);
+  const [released, setReleased] = useState(0);
 
   async function handleProofFile(fileList: FileList | null) {
     const file = fileList?.[0];
@@ -36,16 +46,30 @@ export function UploadPaymentProofPage() {
   useEffect(() => {
     const fetchClients = role === 'Sales Manager' ? getClientsBySalesManager(consultantId) : getClientsBySalesPerson(consultantId);
     fetchClients.then((result) => {
-      setClients(result);
-      if (result.length > 0) setClientId(result[0].id);
+      const active = result.filter((c) => c.status === 'Active');
+      setClients(active);
+      if (active.length > 0) setClientId(active[0].id);
     });
   }, [consultantId, role]);
+
+  useEffect(() => {
+    if (!clientId) {
+      setHistory([]);
+      return;
+    }
+    Promise.all([getPaymentRecordsByClient(clientId), getCommissionVouchers(companyId)]).then(([records, vouchers]) => {
+      setHistory(records);
+      setReleased(releasedTranchesForClient(clientId, vouchers));
+    });
+  }, [clientId, companyId, result]);
 
   const selectedClient = clients.find((c) => c.id === clientId) ?? null;
   const remainingBalance = selectedClient
     ? Math.round(selectedClient.salePrice * (1 - selectedClient.paymentProgressPercent / 100))
     : 0;
   const amountExceedsBalance = Boolean(selectedClient) && (Number(amount) || 0) > remainingBalance;
+  const nextThreshold = selectedClient ? nextTrancheThresholdPercent(released, selectedClient.totalTranches) : null;
+  const phaseNeeded = selectedClient ? nextTranchePhaseNeeded(released, selectedClient.requirementsChecklist) : null;
 
   function resetForm() {
     setAmount('');
@@ -64,7 +88,7 @@ export function UploadPaymentProofPage() {
       return;
     }
     setSubmitting(true);
-    const { client, newTranchesDue } = await recordPayment({
+    const { client, newTranchesDue, voucherHeldForRequirements } = await recordPayment({
       clientId: selectedClient.id,
       amount: Number(amount),
       paymentDate,
@@ -73,7 +97,7 @@ export function UploadPaymentProofPage() {
       uploadedById: consultantId,
     });
     setSubmitting(false);
-    setResult({ progress: client.paymentProgressPercent, newTranchesDue });
+    setResult({ progress: client.paymentProgressPercent, newTranchesDue, voucherHeldForRequirements });
     setClients((prev) => prev.map((c) => (c.id === client.id ? client : c)));
   }
 
@@ -88,12 +112,17 @@ export function UploadPaymentProofPage() {
           <p className="text-muted">
             {selectedClient?.fullName} is now at <strong>{result.progress}%</strong> paid.
           </p>
-          {result.newTranchesDue > 0 ? (
+          {result.newTranchesDue === 0 ? (
+            <p className="text-muted">No new tranche threshold was crossed by this payment.</p>
+          ) : result.voucherHeldForRequirements ? (
+            <p className="text-muted">
+              This crossed a new milestone, but the commission voucher is <strong>on hold</strong> — the client's requirements
+              checklist isn't fully complete yet. Finish their remaining requirements before a voucher can be created.
+            </p>
+          ) : (
             <p className="text-muted">
               This crossed a new milestone — the Broker has been notified that a commission voucher is now due.
             </p>
-          ) : (
-            <p className="text-muted">No new tranche threshold was crossed by this payment.</p>
           )}
           <button type="button" className="btn btn-primary btn-block" onClick={resetForm}>
             Upload Another
@@ -110,7 +139,8 @@ export function UploadPaymentProofPage() {
         <p className="text-muted">Record a client payment and recompute their milestone progress.</p>
       </div>
 
-      <form className="admin-form card admin-form-card" onSubmit={handleSubmit}>
+      <div className="payment-proof-layout">
+      <form className="admin-form card admin-form-card payment-proof-form-col" onSubmit={handleSubmit}>
         <div className="field">
           <label htmlFor="payment-client">Client</label>
           <select id="payment-client" required value={clientId} onChange={(e) => setClientId(e.target.value)}>
@@ -128,6 +158,17 @@ export function UploadPaymentProofPage() {
             <p className="text-muted">
               {selectedClient.paymentProgressPercent}% of {formatPHP(selectedClient.salePrice)} paid — {formatPHP(remainingBalance)}{' '}
               remaining
+            </p>
+            <p className="text-muted">
+              Commission milestone {released} of {selectedClient.totalTranches} released
+              {nextThreshold !== null && (
+                <>
+                  {' '}
+                  — next at {nextThreshold}% paid
+                  {selectedClient.paymentMethod === 'Bank Financing' && ' (~every 3 months)'}
+                  {phaseNeeded && ` (needs ${phaseNeeded} requirements)`}
+                </>
+              )}
             </p>
           </div>
         )}
@@ -201,6 +242,43 @@ export function UploadPaymentProofPage() {
           {submitting ? 'Saving...' : 'Save Payment'}
         </button>
       </form>
+
+      {selectedClient && (
+        <div className="card admin-form-card payment-history-card payment-proof-history-col">
+          <h3>Payment history — {selectedClient.fullName}</h3>
+          {history.length === 0 ? (
+            <p className="text-muted">No payments recorded yet.</p>
+          ) : (
+            <div className="admin-table-wrap">
+              <table className="admin-table">
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Amount</th>
+                    <th>Method</th>
+                    <th>Receipt</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {history.map((record) => (
+                    <tr key={record.id}>
+                      <td>{record.paymentDate}</td>
+                      <td>{formatPHP(record.amount)}</td>
+                      <td>{record.method}</td>
+                      <td>
+                        <a href={record.proofImage} target="_blank" rel="noreferrer" className="payment-history-receipt-link">
+                          <img src={record.proofImage} alt={`Receipt for ${formatPHP(record.amount)} on ${record.paymentDate}`} />
+                        </a>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      )}
+      </div>
     </div>
   );
 }

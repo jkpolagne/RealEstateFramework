@@ -14,7 +14,7 @@ function performanceBadge(totalSales: number): { label: string; className: strin
 }
 
 export function SalesPersonsPage() {
-  const { consultantId } = useConsultantSession();
+  const { consultantId, companyId } = useConsultantSession();
   const [salesPersons, setSalesPersons] = useState<ConsultantAccount[]>([]);
   const [clients, setClients] = useState<Client[]>([]);
   const [links, setLinks] = useState<ConsultantLink[]>([]);
@@ -22,7 +22,7 @@ export function SalesPersonsPage() {
   const [viewing, setViewing] = useState<ConsultantAccount | null>(null);
 
   useEffect(() => {
-    Promise.all([getConsultantAccountsByRole('Sales Person'), getClients(), getConsultantLinks()]).then(
+    Promise.all([getConsultantAccountsByRole(companyId, 'Sales Person'), getClients(companyId), getConsultantLinks(companyId)]).then(
       ([spResult, clientResult, linkResult]) => {
         setSalesPersons(spResult.filter((sp) => sp.assignedUnderId === consultantId));
         setClients(clientResult);
@@ -30,7 +30,7 @@ export function SalesPersonsPage() {
         setLoading(false);
       },
     );
-  }, [consultantId]);
+  }, [consultantId, companyId]);
 
   function clientsFor(spId: string): Client[] {
     return clients.filter((c) => c.salesPersonId === spId);

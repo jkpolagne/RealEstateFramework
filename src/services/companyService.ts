@@ -1,6 +1,7 @@
 import type { AddCompanyInput, Company } from '../types';
 import { companies } from '../mocks/companies';
 import { delay } from '../lib/delay';
+import { persistAll } from '../lib/persist';
 import { recordSystemLog } from './systemLogService';
 
 export async function getCompanies(): Promise<Company[]> {
@@ -35,6 +36,7 @@ export async function addCompany(input: AddCompanyInput): Promise<Company> {
   };
   companies.push(company);
   recordSystemLog('company_created', `Company "${company.name}" (${company.code}) was registered.`, company.id);
+  persistAll();
   return company;
 }
 
@@ -53,5 +55,6 @@ export async function updateCompanyStatus(id: string, status: 'active' | 'inacti
       company.id,
     );
   }
+  persistAll();
   return company;
 }

@@ -4,25 +4,27 @@ import { getClientsBySalesManager, getClientsBySalesPerson, updateClientContact 
 import { getCommissionVouchers } from '../../services/commissionVoucherService';
 import { getAllPropertiesForAdmin } from '../../services/propertyService';
 import { useConsultantSession } from '../../context/ConsultantSessionContext';
-import { checklistPhaseStatus } from '../../lib/checklist';
+import { checklistPhaseStatus, nextTrancheThresholdPercent, nextTranchePhaseNeeded } from '../../lib/checklist';
 import { releasedTranchesForClient } from '../../lib/tranche';
 import { ChecklistModal } from '../../components/consultant/ChecklistModal';
+import { SetUpClientModal } from '../../components/consultant/SetUpClientModal';
 
 type Tab = 'view' | 'contact';
 
 export function MonitorClientsPage() {
-  const { consultantId, role } = useConsultantSession();
+  const { consultantId, companyId, role } = useConsultantSession();
   const [tab, setTab] = useState<Tab>('view');
   const [clients, setClients] = useState<Client[]>([]);
   const [vouchers, setVouchers] = useState<CommissionVoucher[]>([]);
   const [properties, setProperties] = useState<Property[]>([]);
   const [loading, setLoading] = useState(true);
   const [checklistClient, setChecklistClient] = useState<Client | null>(null);
+  const [setupClient, setSetupClient] = useState<Client | null>(null);
 
   function refresh() {
     setLoading(true);
     const fetchClients = role === 'Sales Manager' ? getClientsBySalesManager(consultantId) : getClientsBySalesPerson(consultantId);
-    Promise.all([fetchClients, getCommissionVouchers(), getAllPropertiesForAdmin()]).then(
+    Promise.all([fetchClients, getCommissionVouchers(companyId), getAllPropertiesForAdmin(companyId)]).then(
       ([clientResult, voucherResult, propertyResult]) => {
         setClients(clientResult);
         setVouchers(voucherResult);
@@ -32,7 +34,7 @@ export function MonitorClientsPage() {
     );
   }
 
-  useEffect(refresh, [consultantId, role]);
+  useEffect(refresh, [consultantId, companyId, role]);
 
   function propertyName(propertyId: string): string {
     return properties.find((p) => p.id === propertyId)?.name ?? 'Unknown property';
@@ -76,8 +78,29 @@ export function MonitorClientsPage() {
               </thead>
               <tbody>
                 {clients.map((client) => {
+                  if (client.status === 'Pending Setup') {
+                    return (
+                      <tr key={client.id}>
+                        <td className="admin-table-name">{client.fullName}</td>
+                        <td>{propertyName(client.propertyId)}</td>
+                        <td className="text-muted">Not set up yet</td>
+                        <td className="text-muted">—</td>
+                        <td>
+                          <span className="badge badge-reserved">Pending Setup</span>
+                        </td>
+                        <td>
+                          <button type="button" className="btn btn-primary btn-sm" onClick={() => setSetupClient(client)}>
+                            Set Up Client
+                          </button>
+                        </td>
+                      </tr>
+                    );
+                  }
+
                   const released = releasedTranchesForClient(client.id, vouchers);
                   const checklistStatus = checklistPhaseStatus(client.requirementsChecklist);
+                  const nextThreshold = nextTrancheThresholdPercent(released, client.totalTranches);
+                  const phaseNeeded = nextTranchePhaseNeeded(released, client.requirementsChecklist);
                   return (
                     <tr key={client.id}>
                       <td className="admin-table-name">{client.fullName}</td>
@@ -86,15 +109,22 @@ export function MonitorClientsPage() {
                       <td>
                         <div className="tranche-progress">
                           <span>
-                            Tranche {released} of {client.totalTranches} released
+                            Commission milestone {released} of {client.totalTranches} released
                           </span>
                           <div className="tranche-bar">
                             <div
                               className="tranche-bar-fill"
-                              style={{ width: `${(released / client.totalTranches) * 100}%` }}
+                              style={{ width: `${client.paymentProgressPercent}%` }}
                             />
                           </div>
                           <span className="text-muted">{client.paymentProgressPercent}% paid</span>
+                          {nextThreshold !== null && (
+                            <span className="text-muted">
+                              Next milestone at {nextThreshold}% paid
+                              {client.paymentMethod === 'Bank Financing' && ' (~every 3 months)'}
+                              {phaseNeeded && ` — needs ${phaseNeeded} requirements`}
+                            </span>
+                          )}
                         </div>
                       </td>
                       <td>
@@ -135,6 +165,10 @@ export function MonitorClientsPage() {
             setChecklistClient((current) => (current ? clients.find((c) => c.id === current.id) ?? current : current));
           }}
         />
+      )}
+
+      {setupClient && (
+        <SetUpClientModal client={setupClient} onClose={() => setSetupClient(null)} onSaved={refresh} />
       )}
     </div>
   );

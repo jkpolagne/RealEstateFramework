@@ -6,7 +6,7 @@ import { formatPHP } from '../../lib/format';
 import { VoucherDetailsModal } from '../../components/shared/VoucherDetailsModal';
 
 export function ReleaseCommissionPage() {
-  const { displayName } = useConsultantSession();
+  const { displayName, companyId } = useConsultantSession();
   const [vouchers, setVouchers] = useState<CommissionVoucher[]>([]);
   const [loading, setLoading] = useState(true);
   const [actingId, setActingId] = useState<string | null>(null);
@@ -14,13 +14,13 @@ export function ReleaseCommissionPage() {
 
   function refresh() {
     setLoading(true);
-    getCommissionVouchers().then((result) => {
+    getCommissionVouchers(companyId).then((result) => {
       setVouchers(result.filter((v) => v.status === 'Signed'));
       setLoading(false);
     });
   }
 
-  useEffect(refresh, []);
+  useEffect(refresh, [companyId]);
 
   async function handleRelease(id: string) {
     setActingId(id);
