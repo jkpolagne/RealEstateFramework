@@ -1,3 +1,72 @@
 import type { LoanQuotation } from '../types';
 
-export const loanQuotations: LoanQuotation[] = [];
+export const loanQuotations: LoanQuotation[] = [
+  {
+    "id": "quote-1784162032563",
+    "companyId": "company-1784158043492",
+    "propertyId": "prop-1784159535502",
+    "developerId": "dev-1784158166970",
+    "propertyPrice": 2300000,
+    "interestRate": 6.5,
+    "downPaymentPercent": 20,
+    "downPaymentAmount": 460000,
+    "termMonths": 180,
+    "monthlyAmortization": 16028,
+    "netLoanAmount": 1840000,
+    "totalInterestPaid": 1045040,
+    "totalAmountPayable": 2885040,
+    "principal": 1840000,
+    "paymentBreakdownDescription": "20% down payment upon reservation, balance financed over 180 months at 6.5% p.a."
+  },
+  {
+    "id": "quote-1784162037634",
+    "companyId": "company-1784158043492",
+    "propertyId": "prop-1784159816825",
+    "developerId": "dev-1784158166970",
+    "propertyPrice": 4200000,
+    "interestRate": 6.5,
+    "downPaymentPercent": 20,
+    "downPaymentAmount": 840000,
+    "termMonths": 180,
+    "monthlyAmortization": 29269,
+    "netLoanAmount": 3360000,
+    "totalInterestPaid": 1908420,
+    "totalAmountPayable": 5268420,
+    "principal": 3360000,
+    "paymentBreakdownDescription": "20% down payment upon reservation, balance financed over 180 months at 6.5% p.a."
+  },
+  {
+    "id": "quote-1784162045313",
+    "companyId": "company-1784158043492",
+    "propertyId": "prop-1784160384362",
+    "developerId": "dev-1784158166970",
+    "propertyPrice": 3500000,
+    "interestRate": 6.5,
+    "downPaymentPercent": 20,
+    "downPaymentAmount": 700000,
+    "termMonths": 180,
+    "monthlyAmortization": 24391,
+    "netLoanAmount": 2800000,
+    "totalInterestPaid": 1590380,
+    "totalAmountPayable": 4390380,
+    "principal": 2800000,
+    "paymentBreakdownDescription": "20% down payment upon reservation, balance financed over 180 months at 6.5% p.a."
+  },
+  {
+    "id": "quote-1784162051947",
+    "companyId": "company-1784158043492",
+    "propertyId": "prop-1784160080156",
+    "developerId": "dev-1784159838001",
+    "propertyPrice": 6200000,
+    "interestRate": 6.5,
+    "downPaymentPercent": 20,
+    "downPaymentAmount": 1240000,
+    "termMonths": 180,
+    "monthlyAmortization": 43207,
+    "netLoanAmount": 4960000,
+    "totalInterestPaid": 2817260,
+    "totalAmountPayable": 7777260,
+    "principal": 4960000,
+    "paymentBreakdownDescription": "20% down payment upon reservation, balance financed over 180 months at 6.5% p.a."
+  }
+];
